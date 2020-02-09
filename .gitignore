@@ -1,0 +1,6 @@
+keycad.kicad_pcb
+keycad.net
+*.erc
+*.log
+fp-info-cache
+keycad_lib_sklib.py

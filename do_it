@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# pip3 install kinet2pcb
+# 2to3-2.7 -w /home/miket/.local/lib/python3.6/site-packages/kinet2pcb/kinet2pcb.py
+
+export KICAD_SYMBOL_DIR=/usr/share/kicad/library
+export PYTHONIOENCODING=UTF-8
+python3 /home/miket/src/keycad/keycad.py 68keys.json
+kinet2pcb -i keycad.net -w
+kinjector --from keycad-kinjector.json --to keycad.kicad_pcb
+xdg-open keycad.kicad_pcb
