@@ -90,7 +90,7 @@ class Pcb:
     def get_kinjector_dict(self):
         return self.__kinjector_json
 
-    def add_pro_micro(self):
+    def place_pro_micro(self):
         pro_micro = Part('keebio',
                          'ProMicro',
                          NETLIST,
@@ -200,7 +200,7 @@ json_text = open(args.kle_json_filename, "r").read()
 kle_json = json.loads(json_text)
 keycad.handle_kle_json(kle_json)
 
-pro_micro = pcb.add_pro_micro()
+pro_micro = pcb.place_pro_micro()
 keycad.connect_pro_micro(pro_micro)
 
 # Output the netlist to a file.
