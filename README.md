@@ -1,5 +1,5 @@
 # keycad
-Generates various CAD files for custom keyboards
+Generates various CAD files for custom keyboards.
 
 ## Installation
 
@@ -27,11 +27,10 @@ On my machine, this is what I did:
 
 You'll then have to go into the KiCad user interface (Preferences -> Manage
 Symbol Libraries) and add the libraries you copied to your global symbol
-libraries list.
-
-Next, you should go to (Preferences -> Manage Footprint Libraries) and "add
-existing library to table" for the `keebio/Keebio-Parts.pretty` and
-`daprice/keyswitches.pretty` directories.
+libraries list. Next, you should go to (Preferences -> Manage Footprint
+Libraries) and "add existing library to table" for the
+`keebio/Keebio-Parts.pretty` and `daprice/keyswitches.pretty` directories. Use
+the suggested nicknames for these items because the code relies on them!
 
 The first time you run `./do_it`, you'll get some errors from Python libraries
 that haven't been updated for Python 3. Look at the error messages and then
@@ -55,7 +54,9 @@ isn't fixed, you should patch your local kinjector installation as I did in
 (Actually I don't think that fix is right; I ended up putting `raise Exception`
 at line 143 to skip the YAML attempt entirely.)
 
-## Useful Prior Art and Guides
+## Useful Tools, Prior Art, and Guides
 
 * https://github.com/ruiqimao/keyboard-pcb-guide
-* 
+* http://builder.swillkb.com/
+* http://www.keyboard-layout-editor.com/
+* https://github.com/fcoury/kbpcb
