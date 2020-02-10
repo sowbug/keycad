@@ -4,3 +4,6 @@ keycad.net
 *.log
 fp-info-cache
 keycad_lib_sklib.py
+*.bak
+keycad-kinjector.json
+keycad.pro
