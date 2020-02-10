@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # pip3 install kinet2pcb
-# 2to3-2.7 -w /home/miket/.local/lib/python3.6/site-packages/kinet2pcb/kinet2pcb.py
+# 2to3-2.7 -w ~/.local/lib/python3.6/site-packages/kinet2pcb/kinet2pcb.py
 
 export KICAD_SYMBOL_DIR=/usr/share/kicad/library
 export PYTHONIOENCODING=UTF-8
 #JSON_FILENAME=default-planck.json
 JSON_FILENAME=default-60-percent.json
 #JSON_FILENAME=68keys-io.json
-python3 /home/miket/src/keycad/keycad.py ${JSON_FILENAME}
+python3 keycad.py ${JSON_FILENAME}
 kinet2pcb -i keycad.net -w
 kinjector --from keycad-kinjector.json --to keycad.kicad_pcb
-python3 /home/miket/src/keycad/draw_outline.py
+python3 draw_outline.py
 xdg-open keycad.kicad_pcb

@@ -3,6 +3,7 @@ Generates various CAD files for custom keyboards.
 
 ## Installation
 
+* `sudo apt install kicad`  (or however you install KiCad on your system)
 * `pip3 install skidl kinjector kinet2pcb`
 
 In a source directory somewhere, clone these repos:
@@ -11,7 +12,6 @@ In a source directory somewhere, clone these repos:
 * `https://github.com/keebio/keebio-components`
 * `https://github.com/keebio/Keebio-Parts.pretty`
 * `https://github.com/daprice/keyswitches.pretty`
-
 * `https://github.com/tmk/keyboard_parts.pretty`
 
 Then you'll need to copy the appropriate .lib files into your
@@ -24,6 +24,8 @@ On my machine, this is what I did:
 
 * `sudo cp ~/src/kicad_lib_tmk/keyboard_parts.lib /usr/share/kicad/library`
 * `sudo cp ~/src/keebio-components/keebio.lib /usr/share/kicad/library`
+
+Make sure the resulting permissions will allow regular users like you to read the libraries.
 
 You'll then have to go into the KiCad user interface (Preferences -> Manage
 Symbol Libraries) and add the libraries you copied to your global symbol
