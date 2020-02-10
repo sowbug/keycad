@@ -7,3 +7,4 @@ keycad_lib_sklib.py
 *.bak
 keycad-kinjector.json
 keycad.pro
+.vscode/.ropeproject/objectdb
