@@ -7,10 +7,6 @@ from skidl import *
 
 KC_TO_MM = 1000000
 
-FOOTPRINT_TO_DIMENSIONS = {
-    'keeb:ArduinoProMicro': ()
-}
-
 class Pcb:
     def __init__(self, mx_key_width):
         self.__mx_key_width = mx_key_width
@@ -94,7 +90,7 @@ class Pcb:
         pro_micro = Part('keebio',
                          'ProMicro',
                          NETLIST,
-                         footprint='keeb:ArduinoProMicro')
+                         footprint='Keebio-Parts:ArduinoProMicro')
         pro_micro.ref = 'U1'
         pro_micro.value = 'Pro Micro'
         self.mark_pro_micro_position(pro_micro)
@@ -122,10 +118,11 @@ class KeyCad:
             self.__pcb.set_logical_key_width(float(metadata['w']))
 
     def create_keyswitch(self, key):
+        # keyboard_parts.lib is found at https://github.com/tmk/kicad_lib_tmk
         part = Part('keyboard_parts',
                     '~KEYSW',
                     NETLIST,
-                    footprint='daprice:Kailh_socket_MX')
+                    footprint='keyswitches:Kailh_socket_MX')
         part.ref = "K%d" % (self.__keysw_partno)
         part.value = "foo"  #str(key)
         self.__keysw_partno += 1
@@ -133,7 +130,7 @@ class KeyCad:
         return part
 
     def create_diode(self):
-        part = Part('Device', 'D', NETLIST, footprint='keeb:D_0805')
+        part = Part('Device', 'D', NETLIST, footprint='Keebio-Parts:D_0805')
         part.ref = "D%d" % (self.__d_partno)
         part.value = "1N4148"
         self.__d_partno += 1
