@@ -7,6 +7,10 @@ from skidl import *
 
 KC_TO_MM = 1000000
 
+SYMBOL_TO_ALNUM = {
+    "'": 'quote',
+}
+
 
 class Pcb:
     def __init__(self, mx_key_width):
@@ -39,7 +43,6 @@ class Pcb:
 
     def set_logical_key_width(self, width):
         self.__logical_key_width = width
-        print("setting logical key width to %0.2f" % width)
 
     def reset_key_attributes(self):
         self.__logical_key_width = 1
@@ -72,17 +75,15 @@ class Pcb:
         self.update_bounding_box(x, y)
 
     def mark_switch_position(self, part):
-        x, y = self.get_part_position()
         self.mark_component_position(part, 0, 0, 180, 'top')
 
     def mark_diode_position(self, part):
-        x, y = self.get_part_position()
         x_offset, y_offset = (2, -self.__mx_key_width / 5)
         self.mark_component_position(part, x_offset, y_offset, 0, 'bottom')
 
     def mark_pro_micro_position(self, part):
-        x, y = self.get_part_position()
-        self.mark_component_position(part, 0, 0, 0, 'top')
+        x, y = 30, -50
+        self.mark_component_position(part, x, y, 0, 'top')
 
     def get_kinjector_dict(self):
         return self.__kinjector_json
@@ -113,11 +114,19 @@ class KeyCad:
         self.__gnd = Net('GND')
 
     def process_row_metadata(self, metadata):
-        print(metadata)
+        pass
 
     def process_key_metadata(self, metadata):
         if 'w' in metadata:
             self.__pcb.set_logical_key_width(float(metadata['w']))
+
+    def get_key_name(self, kle_name):
+        parts = kle_name.split("\n")
+        if len(parts) > 1:
+            kle_name = parts[len(parts) - 1]
+        if kle_name in SYMBOL_TO_ALNUM:
+            return SYMBOL_TO_ALNUM[kle_name]
+        return kle_name
 
     def create_keyswitch(self, key):
         # keyboard_parts.lib is found at https://github.com/tmk/kicad_lib_tmk
@@ -126,7 +135,7 @@ class KeyCad:
                     NETLIST,
                     footprint='keycad:Kailh_socket_MX')
         part.ref = "K%d" % (self.__keysw_partno)
-        part.value = "foo"  #str(key)
+        part.value = self.get_key_name(str(key))
         self.__keysw_partno += 1
         self.__pcb.mark_switch_position(part)
         return part
@@ -140,8 +149,6 @@ class KeyCad:
         return part
 
     def process_key(self, key):
-        print("key at (%d %d): %s" % (self.__row_index, self.__col_index, key))
-
         part = self.create_keyswitch(key)
         part = self.create_diode()
 
@@ -170,7 +177,6 @@ class KeyCad:
             else:
                 self.process_row(row)
                 self.__row_index += 1
-                print("next row")
                 self.__pcb.cursor_carriage_return()
 
     def connect_pro_micro(self, pro_micro):

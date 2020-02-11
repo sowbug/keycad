@@ -7,6 +7,10 @@ Generates KiCad PCBs for custom keyboards.
 * `sudo apt install kicad`  (or however you install KiCad on your system)
 * `pip3 install skidl kinjector kinet2pcb`
 
+Then in KiCad under Preferences -> Manage Symbol Libraries, add the keycad.lib
+file as a global library, and then in Preferences -> Manage Symbol Libraries add
+the keycad.pretty/ directory as a global footprint library.
+
 When you have everything installed and run `./do_it`, you might see an error like this:
 
 `OSError: Expecting "'('" in input/source`
