@@ -202,13 +202,7 @@ keycad.handle_kle_json(kle_json)
 pro_micro = pcb.place_pro_micro()
 keycad.connect_pro_micro(pro_micro)
 
-# Output the netlist to a file.
 generate_netlist()
-
-# pour ground fills
-# reset button
-# LEDs
-# underglow LEDs
 
 f = open("keycad-kinjector.json", "w")
 f.write(
