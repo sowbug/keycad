@@ -22,25 +22,6 @@ class Pcb:
 
         self.__kinjector_json = {}
 
-        self.__bounding_box_left = 1000
-        self.__bounding_box_top = 1000
-        self.__bounding_box_right = -1000
-        self.__bounding_box_bottom = -1000
-
-    def update_bounding_box(self, x, y):
-        if self.__bounding_box_left > x:
-            self.__bounding_box_left = x
-        if self.__bounding_box_top > y:
-            self.__bounding_box_top = y
-        if self.__bounding_box_right < x:
-            self.__bounding_box_right = x
-        if self.__bounding_box_bottom < y:
-            self.__bounding_box_bottom = y
-
-    def get_bounding_box(self):
-        return (self.__bounding_box_left, self.__bounding_box_top,
-                self.__bounding_box_right, self.__bounding_box_bottom)
-
     def set_logical_key_width(self, width):
         self.__logical_key_width = width
 
@@ -71,8 +52,6 @@ class Pcb:
                 'side': side
             }
         }
-        # TODO(miket): this turned out to be complicated to figure out exactly. So we
-        self.update_bounding_box(x, y)
 
     def mark_switch_position(self, part):
         self.mark_component_position(part, 0, 0, 180, 'top')
@@ -218,6 +197,3 @@ f.write(
                sort_keys=True,
                indent=4))
 f.close()
-
-(l, t, r, b) = pcb.get_bounding_box()
-print("pcb bounding box: (%d %d), (%d %d)" % (l, t, r, b))
