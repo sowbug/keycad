@@ -92,6 +92,9 @@ class KeyCad:
         self.__vcc = Net('VCC')
         self.__gnd = Net('GND')
 
+        self.__key_matrix_x = 0
+        self.__key_matrix_y = 0
+
     def process_row_metadata(self, metadata):
         pass
 
@@ -128,20 +131,30 @@ class KeyCad:
         return part
 
     def process_key(self, key):
-        part = self.create_keyswitch(key)
-        part = self.create_diode()
+        keysw_part = self.create_keyswitch(key)
+        d_part = self.create_diode()
 
-        net = Net("%s_%s" % (part.ref, part.ref))
-        net += part[2], part[2]
-        self.__key_matrix_rows[self.__row_index] += part[1]
-        self.__key_matrix_cols[self.__col_index] += part[2]
+        net = Net("%s_%s" % (keysw_part.ref, d_part.ref))
+        net += keysw_part[2], d_part[2]
+
+        self.__key_matrix_rows[self.__key_matrix_x] += d_part[1]
+        self.__key_matrix_cols[self.__key_matrix_y] += keysw_part[1]
+
+        self.__key_matrix_x += 1
+        if self.__key_matrix_x >= len(self.__key_matrix_cols):
+            self.__key_matrix_x = 0
+            self.__key_matrix_y += 1
+
+    def create_matrix_nets(self):
+        # TODO(miket): calculate right number
+        for y in range(0, 9):
+            self.__key_matrix_rows.append(Net("row%d" % y))
+        for x in range(0, 9):
+            self.__key_matrix_cols.append(Net("col%d" % x))
 
     def process_row(self, row):
         self.__col_index = 0
-        self.__key_matrix_rows.append(Net("row%d" % self.__row_index))
         for key in row:
-            if len(self.__key_matrix_cols) <= self.__col_index:
-                self.__key_matrix_cols.append(Net("col%d" % self.__col_index))
             if isinstance(key, dict):
                 self.process_key_metadata(key)
             else:
@@ -150,6 +163,7 @@ class KeyCad:
                 self.__pcb.advance_cursor()
 
     def handle_kle_json(self, json):
+        self.create_matrix_nets()
         for row in kle_json:
             if isinstance(row, dict):
                 self.process_row_metadata(row)
@@ -159,15 +173,25 @@ class KeyCad:
                 self.__pcb.cursor_carriage_return()
 
     def connect_pro_micro(self, pro_micro):
-        pro_micro_next_pin = 5
+        PRO_MICRO_GPIOS = [
+            1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+        ]
+        next_pin_index = 0
         self.__gnd += pro_micro[3], pro_micro[4], pro_micro[23]
         self.__vcc += pro_micro[21]
+        if len(self.__key_matrix_rows) + len(
+                self.__key_matrix_cols) > len(PRO_MICRO_GPIOS):
+            print(
+                "ERROR: need pins to connect %d rows and %d cols but have only %d GPIOs"
+                % (len(self.__key_matrix_rows), len(
+                    self.__key_matrix_cols), len(PRO_MICRO_GPIOS)))
+            sys.exit(1)
         for row in self.__key_matrix_rows:
-            row += pro_micro[pro_micro_next_pin]
-            pro_micro_next_pin += 1
+            row += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
+            next_pin_index += 1
         for col in self.__key_matrix_cols:
-            col += pro_micro[pro_micro_next_pin]
-            pro_micro_next_pin += 1
+            col += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
+            next_pin_index += 1
 
 
 parser = argparse.ArgumentParser(
