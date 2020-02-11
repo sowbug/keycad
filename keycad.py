@@ -7,6 +7,7 @@ from skidl import *
 
 KC_TO_MM = 1000000
 
+
 class Pcb:
     def __init__(self, mx_key_width):
         self.__mx_key_width = mx_key_width
@@ -87,14 +88,15 @@ class Pcb:
         return self.__kinjector_json
 
     def place_pro_micro(self):
-        pro_micro = Part('keebio',
+        pro_micro = Part('keycad',
                          'ProMicro',
                          NETLIST,
-                         footprint='Keebio-Parts:ArduinoProMicro')
+                         footprint='keycad:ArduinoProMicro')
         pro_micro.ref = 'U1'
         pro_micro.value = 'Pro Micro'
         self.mark_pro_micro_position(pro_micro)
         return pro_micro
+
 
 class KeyCad:
     def __init__(self, pcb):
@@ -119,10 +121,10 @@ class KeyCad:
 
     def create_keyswitch(self, key):
         # keyboard_parts.lib is found at https://github.com/tmk/kicad_lib_tmk
-        part = Part('keyboard_parts',
+        part = Part('keycad',
                     '~KEYSW',
                     NETLIST,
-                    footprint='keyswitches:Kailh_socket_MX')
+                    footprint='keycad:Kailh_socket_MX')
         part.ref = "K%d" % (self.__keysw_partno)
         part.value = "foo"  #str(key)
         self.__keysw_partno += 1
@@ -130,7 +132,7 @@ class KeyCad:
         return part
 
     def create_diode(self):
-        part = Part('Device', 'D', NETLIST, footprint='Keebio-Parts:D_0805')
+        part = Part('keycad', 'D', NETLIST, footprint='keycad:D_0805')
         part.ref = "D%d" % (self.__d_partno)
         part.value = "1N4148"
         self.__d_partno += 1
@@ -203,7 +205,6 @@ keycad.connect_pro_micro(pro_micro)
 # Output the netlist to a file.
 generate_netlist()
 
-# board outline
 # pour ground fills
 # reset button
 # LEDs
