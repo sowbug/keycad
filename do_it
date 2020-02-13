@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #JSON_FILENAME=default-planck.json
-JSON_FILENAME=default-60-percent.json
-#JSON_FILENAME=68keys-io.json
+#JSON_FILENAME=default-60-percent.json
+JSON_FILENAME=68keys-io.json
 python3 keycad.py kle_layouts/${JSON_FILENAME}
 kinet2pcb -i keycad.net -w
 kinjector --from keycad-kinjector.json --to keycad.kicad_pcb
