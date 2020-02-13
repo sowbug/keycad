@@ -7,7 +7,6 @@ KC_TO_MM = 1000000
 FILENAME = "keycad.kicad_pcb"
 pcb = pcbnew.LoadBoard(FILENAME)
 pcb.ComputeBoundingBox(False)
-print(pcb)
 l, t, r, b = pcb.GetBoundingBox().GetLeft(), pcb.GetBoundingBox().GetTop(
 ), pcb.GetBoundingBox().GetRight(), pcb.GetBoundingBox().GetBottom()
 
