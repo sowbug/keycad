@@ -36,7 +36,7 @@ def draw_arc(board, cx, cy, sx, sy, a):
     ds.SetAngle(a * 10)
 
 
-MARGIN = 5 * KC_TO_MM
+MARGIN = 0 * KC_TO_MM
 CORNER_RADIUS = 3 * KC_TO_MM
 POINTS = [
     (l - MARGIN, t - MARGIN),
