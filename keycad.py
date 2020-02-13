@@ -7,8 +7,11 @@ from skidl import *
 
 KC_TO_MM = 1000000
 
+# KiCad explodes with raw quote
+# freerouting.jar explodes with raw backtick
 SYMBOL_TO_ALNUM = {
     "'": 'quote',
+    "`": 'backtick'
 }
 
 
@@ -57,11 +60,19 @@ class Pcb:
         self.mark_component_position(part, 0, 0, 180, 'top')
 
     def mark_diode_position(self, part):
-        x_offset, y_offset = (2, -self.__mx_key_width / 5)
-        self.mark_component_position(part, x_offset, y_offset, 0, 'bottom')
+        x_offset, y_offset = (4, -self.__mx_key_width / 5)
+        self.mark_component_position(part, x_offset, y_offset, 90, 'bottom')
+
+    def mark_led_position(self, part):
+        x_offset, y_offset = (0, -self.__mx_key_width / 4)
+        self.mark_component_position(part, x_offset, y_offset, 0, 'top')
 
     def mark_pro_micro_position(self, part):
         x, y = 30, -50
+        self.mark_component_position(part, x, y, 0, 'top')
+
+    def mark_reset_switch_position(self, part):
+        x, y = 50, -50
         self.mark_component_position(part, x, y, 0, 'top')
 
     def get_kinjector_dict(self):
@@ -77,6 +88,16 @@ class Pcb:
         self.mark_pro_micro_position(pro_micro)
         return pro_micro
 
+    def place_reset_switch(self):
+        reset = Part('keycad',
+                     'SW_Push',
+                     NETLIST,
+                     footprint='keycad:SW_SPST_SKQG_WithoutStem')
+        reset.ref = 'Sw1'
+        reset.value = 'SKQGAKE010'
+        self.mark_reset_switch_position(reset)
+        return reset
+
 
 class KeyCad:
     def __init__(self, pcb):
@@ -84,6 +105,7 @@ class KeyCad:
         self.__col_index = 0
         self.__keysw_partno = 1
         self.__d_partno = 1
+        self.__led_partno = 1
         self.__key_matrix_rows = []
         self.__key_matrix_cols = []
 
@@ -113,7 +135,7 @@ class KeyCad:
     def create_keyswitch(self, key):
         # keyboard_parts.lib is found at https://github.com/tmk/kicad_lib_tmk
         part = Part('keycad',
-                    '~KEYSW',
+                    'KEYSW',
                     NETLIST,
                     footprint='keycad:Kailh_socket_MX')
         part.ref = "K%d" % (self.__keysw_partno)
@@ -130,9 +152,18 @@ class KeyCad:
         self.__pcb.mark_diode_position(part)
         return part
 
+    def create_per_key_led(self):
+        part = Part('keycad', 'APA102-2020', NETLIST, footprint='keycad:LED-APA102-2020')
+        part.ref = "LED%d" % (self.__led_partno)
+        part.value = "APA102-2020"
+        self.__led_partno += 1
+        self.__pcb.mark_led_position(part)
+        return part
+
     def process_key(self, key):
         keysw_part = self.create_keyswitch(key)
         d_part = self.create_diode()
+        led_part = self.create_per_key_led()
 
         net = Net("%s_%s" % (keysw_part.ref, d_part.ref))
         net += keysw_part[2], d_part[2]
@@ -193,6 +224,11 @@ class KeyCad:
             col += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
             next_pin_index += 1
 
+    def connect_reset_switch(self, reset, pro_micro):
+        self.__gnd += reset[2]
+        pro_micro[22] += reset[1]
+        reset[1].net.name = "RST"
+
 
 parser = argparse.ArgumentParser(
     description=
@@ -210,6 +246,8 @@ keycad.handle_kle_json(kle_json)
 
 pro_micro = pcb.place_pro_micro()
 keycad.connect_pro_micro(pro_micro)
+reset = pcb.place_reset_switch()
+keycad.connect_reset_switch(reset, pro_micro)
 
 generate_netlist()
 
