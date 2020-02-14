@@ -11,7 +11,11 @@ KC_TO_MM = 1000000
 # freerouting.jar explodes with raw backtick
 SYMBOL_TO_ALNUM = {
     "'": 'quote',
-    "`": 'backtick'
+    "`": 'backtick',
+    "↑": 'up',
+    "↓": 'down',
+    "←": 'left',
+    "→": 'right',
 }
 
 
@@ -153,7 +157,10 @@ class KeyCad:
         return part
 
     def create_per_key_led(self):
-        part = Part('keycad', 'APA102-2020', NETLIST, footprint='keycad:LED-APA102-2020')
+        part = Part('keycad',
+                    'APA102-2020',
+                    NETLIST,
+                    footprint='keycad:LED-APA102-2020')
         part.ref = "LED%d" % (self.__led_partno)
         part.value = "APA102-2020"
         self.__led_partno += 1
