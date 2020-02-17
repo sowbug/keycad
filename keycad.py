@@ -163,11 +163,11 @@ class KeyCad:
 
     def create_per_key_led(self):
         part = Part('keycad',
-                    'APA102-2020',
+                    'SK6812MINI-E',
                     NETLIST,
-                    footprint='keycad:LED-APA102-2020')
+                    footprint='keycad:SK6812-MINI-E-BOTTOM')
         part.ref = "LED%d" % (self.__led_partno)
-        part.value = "APA102-2020"
+        part.value = "SK6812MINI-E"
         self.__led_partno += 1
         self.__pcb.mark_led_position(part)
         return part
