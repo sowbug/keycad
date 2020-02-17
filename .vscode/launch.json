@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["planck-default.json"],
+            "args": ["kle_layouts/68keys-io.json"],
             "env": {"KICAD_SYMBOL_DIR": "/usr/share/kicad/library"}
         }
     ]
