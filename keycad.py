@@ -272,9 +272,12 @@ f.write(
                indent=4))
 f.close()
 
-
-subprocess.call(['kinet2pcb', '--nobackup', '--overwrite', '-i', 'keycad.net', '-w'])
-subprocess.call(['kinjector', '--nobackup', '--overwrite', '--from', KINJECTOR_JSON_FILENAME, '--to', PCB_FILENAME])
+subprocess.call(
+    ['kinet2pcb', '--nobackup', '--overwrite', '-i', 'keycad.net', '-w'])
+subprocess.call([
+    'kinjector', '--nobackup', '--overwrite', '--from',
+    KINJECTOR_JSON_FILENAME, '--to', PCB_FILENAME
+])
 
 pcb = pcbnew.LoadBoard(PCB_FILENAME)
 pcb.ComputeBoundingBox(False)
@@ -331,6 +334,39 @@ draw_arc(pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1] - CORNER_RADIUS,
          POINTS[2][0], POINTS[2][1] - CORNER_RADIUS, 90)
 draw_arc(pcb, POINTS[3][0] + CORNER_RADIUS, POINTS[3][1] - CORNER_RADIUS,
          POINTS[3][0] + CORNER_RADIUS, POINTS[3][1], 90)
+
+layertable = {}
+
+numlayers = pcbnew.PCB_LAYER_ID_COUNT
+for i in range(numlayers):
+    layertable[pcb.GetLayerName(i)] = i
+
+nets = pcb.GetNetsByName()
+
+powernets = []
+
+for name in ["GND"]:
+    if (nets.has_key(name)):
+        powernets.append((name, "F.Cu"))
+        powernets.append((name, "B.Cu"))
+        break
+
+for netname, layername in (powernets):
+    net = nets.find(netname).value()[1]
+    layer = layertable[layername]
+    newarea = pcb.InsertArea(
+        net.GetNet(), 0, layer, l, t, pcbnew.ZONE_EXPORT_VALUES
+    )  # picked random name because ZONE_HATCH_STYLE_DIAGONAL_EDGE was missing
+
+    newoutline = newarea.Outline()
+    newoutline.Append(l, b)
+    newoutline.Append(r, b)
+    newoutline.Append(r, t)
+    newarea.Hatch()
+
+filler = pcbnew.ZONE_FILLER(pcb)
+zones = pcb.Zones()
+filler.Fill(zones)
 
 pcbnew.SaveBoard(PCB_FILENAME, pcb)
 
