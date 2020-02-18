@@ -1,0 +1,22 @@
+{
+    "board": {
+        "modules": {
+            "SW1": {
+                "position": {
+                    "angle": 0,
+                    "side": "bottom",
+                    "x": 189230000,
+                    "y": 35560000
+                }
+            },
+            "U1": {
+                "position": {
+                    "angle": 270,
+                    "side": "top",
+                    "x": 189230000,
+                    "y": 8890000
+                }
+            }
+        }
+    }
+}

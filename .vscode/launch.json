@@ -8,10 +8,16 @@
             "name": "Python: Sample KLE File",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/keycad.py",
             "console": "integratedTerminal",
-            "args": ["kle_layouts/68keys-io.json"],
-            "env": {"KICAD_SYMBOL_DIR": "/usr/share/kicad/library"}
+            "args": [
+                "--position_json_filename",
+                "kle_layouts/gherkin-base-layer.positions.json",
+                "kle_layouts/gherkin-base-layer.json"
+            ],
+            "env": {
+                "KICAD_SYMBOL_DIR": "/usr/share/kicad/library"
+            }
         }
     ]
 }

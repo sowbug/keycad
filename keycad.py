@@ -35,6 +35,10 @@ class Pcb:
 
         self.__kinjector_json = {}
 
+    def read_positions(self, filename):
+        with open(filename, "r") as f:
+            self.__kinjector_json = json.loads(f.read())
+
     def set_logical_key_width(self, width):
         self.__logical_key_width = width
 
@@ -46,6 +50,24 @@ class Pcb:
                  ((self.__logical_key_width - 1) * self.__mx_key_width / 2)))
         y = int(self.__key_cursor_y)
         return (x, y)
+    
+    def maybe_override_position(self, part, x, y, angle, side):
+        m = self.__kinjector_json['board']['modules']
+        if part.ref in m and 'position' in m[part.ref]:
+            m = m[part.ref]['position']
+            k = 'angle'
+            if k in m:
+                angle = m[k]
+            k = 'side'
+            if k in m:
+                side = m[k]
+            k = 'x'
+            if k in m:
+                x = m[k]
+            k = 'y'
+            if k in m:
+                y = m[k]
+        return (x, y, angle, side)
 
     def advance_cursor(self, end_of_row=False):
         self.__key_cursor_x += self.__mx_key_width * self.__logical_key_width
@@ -57,10 +79,13 @@ class Pcb:
 
     def mark_component_position(self, part, x_offset, y_offset, angle, side):
         x, y = self.get_part_position()
+        x = (x + x_offset) * KC_TO_MM
+        y = (y + y_offset) * KC_TO_MM
+        (x, y, angle, side) = self.maybe_override_position(part, x, y, angle, side)
         self.__kinjector_json[part.ref] = {
             'position': {
-                'x': (x + x_offset) * KC_TO_MM,
-                'y': (y + y_offset) * KC_TO_MM,
+                'x': x,
+                'y': y,
                 'angle': angle,
                 'side': side
             }
@@ -83,7 +108,7 @@ class Pcb:
 
     def mark_reset_switch_position(self, part):
         x, y = 50, -50
-        self.mark_component_position(part, x, y, 0, 'top')
+        self.mark_component_position(part, x, y, 0, 'bottom')
 
     def get_kinjector_dict(self):
         return self.__kinjector_json
@@ -209,9 +234,9 @@ class KeyCad:
     def create_matrix_nets(self):
         # TODO(miket): calculate right number
         for y in range(0, 9):
-            self.__key_matrix_rows.append(Net("row%d" % y))
+            self.__key_matrix_rows.append(Net("ROW_%d" % y))
         for x in range(0, 9):
-            self.__key_matrix_cols.append(Net("col%d" % x))
+            self.__key_matrix_cols.append(Net("COL_%d" % x))
 
     def process_row(self, row):
         self.__col_index = 0
@@ -264,11 +289,9 @@ class KeyCad:
                     self.__key_matrix_cols), len(PRO_MICRO_GPIOS)))
             sys.exit(1)
         for row in self.__key_matrix_rows:
-            print(row, len(row))
             row += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
             next_pin_index += 1
         for col in self.__key_matrix_cols:
-            print(col, len(col))
             col += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
             next_pin_index += 1
 
@@ -286,9 +309,13 @@ parser = argparse.ArgumentParser(
     'Generate keyboard manufacturing files from www.keyboard-layout-editor.com JSON.'
 )
 parser.add_argument('kle_json_filename', help='KLE JSON filename')
+parser.add_argument('--position_json_filename', help='kinjector-format overrides of positions')
 args = parser.parse_args()
 
 pcb = Pcb(19.05)
+if args.position_json_filename is not None:
+    pcb.read_positions(args.position_json_filename)
+
 keycad = KeyCad(pcb)
 
 json_text = open(args.kle_json_filename, "r").read()
