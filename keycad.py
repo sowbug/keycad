@@ -22,6 +22,7 @@ SYMBOL_TO_ALNUM = {
 
 PCB_FILENAME = "keycad.kicad_pcb"
 KINJECTOR_JSON_FILENAME = "keycad-kinjector.json"
+NETLIST_FILENAME = "keycad.net"
 
 
 class Pcb:
@@ -261,7 +262,8 @@ keycad.connect_pro_micro(pro_micro)
 reset = pcb.place_reset_switch()
 keycad.connect_reset_switch(reset, pro_micro)
 
-generate_netlist()
+with open(NETLIST_FILENAME, "w") as f:
+    generate_netlist(file_=f)
 
 f = open(KINJECTOR_JSON_FILENAME, "w")
 f.write(
@@ -273,7 +275,7 @@ f.write(
 f.close()
 
 subprocess.call(
-    ['kinet2pcb', '--nobackup', '--overwrite', '-i', 'keycad.net', '-w'])
+    ['kinet2pcb', '--nobackup', '--overwrite', '-i', NETLIST_FILENAME, '-w'])
 subprocess.call([
     'kinjector', '--nobackup', '--overwrite', '--from',
     KINJECTOR_JSON_FILENAME, '--to', PCB_FILENAME
