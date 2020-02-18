@@ -70,12 +70,12 @@ class Pcb:
         self.mark_component_position(part, 0, 0, 180, 'top')
 
     def mark_diode_position(self, part):
-        x_offset, y_offset = (4, -self.__mx_key_width / 5)
+        x_offset, y_offset = (5, -self.__mx_key_width / 5)
         self.mark_component_position(part, x_offset, y_offset, 90, 'bottom')
 
     def mark_led_position(self, part):
         x_offset, y_offset = (0, -self.__mx_key_width / 4)
-        self.mark_component_position(part, x_offset, y_offset, 0, 'top')
+        self.mark_component_position(part, x_offset, y_offset, 0, 'bottom')
 
     def mark_pro_micro_position(self, part):
         x, y = 30, -50
@@ -123,6 +123,9 @@ class KeyCad:
 
         self.__vcc = Net('VCC')
         self.__gnd = Net('GND')
+
+        self.__led_din_pin = None
+        self.__led_dout_pin = None
 
         self.__key_matrix_x = 0
         self.__key_matrix_y = 0
@@ -173,6 +176,18 @@ class KeyCad:
         self.__pcb.mark_led_position(part)
         return part
 
+    def connect_per_key_led(self, led):
+        self.__vcc += led[1]
+        self.__gnd += led[3]
+
+        if self.__led_din_pin is None:
+            self.__led_din_pin = led[4]
+        if self.__led_dout_pin is None:
+            self.__led_dout_pin = led[2]
+        led[4] += self.__led_dout_pin
+        led[4].net.name = "%s_DIN" % led.ref
+        self.__led_dout_pin = led[2]
+
     def process_key(self, key):
         keysw_part = self.create_keyswitch(key)
         d_part = self.create_diode()
@@ -180,6 +195,8 @@ class KeyCad:
 
         net = Net("%s_%s" % (keysw_part.ref, d_part.ref))
         net += keysw_part[2], d_part[2]
+
+        self.connect_per_key_led(led_part)
 
         self.__key_matrix_rows[self.__key_matrix_x] += d_part[1]
         self.__key_matrix_cols[self.__key_matrix_y] += keysw_part[1]
@@ -218,12 +235,28 @@ class KeyCad:
 
     def connect_pro_micro(self, pro_micro):
         PRO_MICRO_GPIOS = [
-            1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+            1, 2, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
         ]
+
         next_pin_index = 0
         self.__gnd += pro_micro[3], pro_micro[4], pro_micro[23]
         self.__vcc += pro_micro[21]
-        if len(self.__key_matrix_rows) + len(
+
+        if self.__led_din_pin is not None:
+            pro_micro[5] += self.__led_din_pin 
+        else:
+            # TODO(miket): change to a method that allows asking for the
+            # next GPIO, and then this can be refactored away
+            PRO_MICRO_GPIOS.append(5)
+
+        for row in self.__key_matrix_rows:
+            if len(row) == 0:
+                self.__key_matrix_rows.remove(row)
+        for col in self.__key_matrix_cols:
+            if len(col) == 0:
+                self.__key_matrix_cols.remove(col)
+
+        if False and len(self.__key_matrix_rows) + len(
                 self.__key_matrix_cols) > len(PRO_MICRO_GPIOS):
             print(
                 "ERROR: need pins to connect %d rows and %d cols but have only %d GPIOs"
@@ -231,9 +264,11 @@ class KeyCad:
                     self.__key_matrix_cols), len(PRO_MICRO_GPIOS)))
             sys.exit(1)
         for row in self.__key_matrix_rows:
+            print(row, len(row))
             row += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
             next_pin_index += 1
         for col in self.__key_matrix_cols:
+            print(col, len(col))
             col += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
             next_pin_index += 1
 
@@ -241,6 +276,9 @@ class KeyCad:
         self.__gnd += reset[2]
         pro_micro[22] += reset[1]
         reset[1].net.name = "RST"
+
+    def set_next_dout_pin(self, next_dout_pin):
+        self.__next_dout_pin = next_dout_pin
 
 
 parser = argparse.ArgumentParser(
