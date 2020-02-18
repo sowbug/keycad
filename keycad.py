@@ -50,7 +50,7 @@ class Pcb:
                  ((self.__logical_key_width - 1) * self.__mx_key_width / 2)))
         y = int(self.__key_cursor_y)
         return (x, y)
-    
+
     def maybe_override_position(self, part, x, y, angle, side):
         m = self.__kinjector_json['board']['modules']
         if part.ref in m and 'position' in m[part.ref]:
@@ -81,7 +81,8 @@ class Pcb:
         x, y = self.get_part_position()
         x = (x + x_offset) * KC_TO_MM
         y = (y + y_offset) * KC_TO_MM
-        (x, y, angle, side) = self.maybe_override_position(part, x, y, angle, side)
+        (x, y, angle,
+         side) = self.maybe_override_position(part, x, y, angle, side)
         self.__kinjector_json[part.ref] = {
             'position': {
                 'x': x,
@@ -268,7 +269,7 @@ class KeyCad:
         self.__vcc += pro_micro[21]
 
         if self.__led_din_pin is not None:
-            pro_micro[5] += self.__led_din_pin 
+            pro_micro[5] += self.__led_din_pin
         else:
             # TODO(miket): change to a method that allows asking for the
             # next GPIO, and then this can be refactored away
@@ -309,7 +310,8 @@ parser = argparse.ArgumentParser(
     'Generate keyboard manufacturing files from www.keyboard-layout-editor.com JSON.'
 )
 parser.add_argument('kle_json_filename', help='KLE JSON filename')
-parser.add_argument('--position_json_filename', help='kinjector-format overrides of positions')
+parser.add_argument('--position_json_filename',
+                    help='kinjector-format overrides of positions')
 args = parser.parse_args()
 
 pcb = Pcb(19.05)
