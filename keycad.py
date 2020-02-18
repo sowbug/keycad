@@ -103,7 +103,7 @@ class Pcb:
                      'SW_Push',
                      NETLIST,
                      footprint='keycad:SW_SPST_SKQG_WithoutStem')
-        reset.ref = 'Sw1'
+        reset.ref = 'SW1'
         reset.value = 'SKQGAKE010'
         self.mark_reset_switch_position(reset)
         return reset
