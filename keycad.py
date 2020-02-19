@@ -12,12 +12,17 @@ KC_TO_MM = 1000000
 # KiCad explodes with raw quote
 # freerouting.jar explodes with raw backtick
 SYMBOL_TO_ALNUM = {
-    "'": 'quote',
-    "`": 'backtick',
-    "↑": 'up',
-    "↓": 'down',
-    "←": 'left',
-    "→": 'right',
+    "'": 'QUOT',
+    "`": 'GRV',
+    "↑": 'UP',
+    "↓": 'DOWN',
+    "←": 'LEFT',
+    "→": 'RGHT',
+    "":  'SPC',
+    "Caps Lock": 'CAPS',
+    "Shift": 'SHFT',
+    "Backspace": "BSPC",
+    "Enter": "ENT"
 }
 
 PCB_FILENAME = "keycad.kicad_pcb"
