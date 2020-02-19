@@ -5,15 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Sample KLE File",
+            "name": "Process current KLE file",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/keycad.py",
             "console": "integratedTerminal",
             "args": [
                 "--position_json_filename",
-                "kle_layouts/gherkin-base-layer.positions.json",
-                "kle_layouts/gherkin-base-layer.json"
+                "kle_layouts/${fileBasenameNoExtension}.positions.json",
+                "kle_layouts/${fileBasenameNoExtension}.json"
             ],
             "env": {
                 "KICAD_SYMBOL_DIR": "/usr/share/kicad/library"
