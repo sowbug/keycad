@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import json
+import os
 import subprocess
 
 import pcbnew
@@ -17,6 +17,7 @@ KC_TO_MM = 1000000
 PCB_FILENAME = "keycad.kicad_pcb"
 KINJECTOR_JSON_FILENAME = "keycad-kinjector.json"
 NETLIST_FILENAME = "keycad.net"
+
 
 parser = argparse.ArgumentParser(
     description=
