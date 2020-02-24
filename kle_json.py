@@ -1,6 +1,8 @@
 import json
 import logging
 
+import key
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -10,35 +12,50 @@ class Parser:
         self.reset()
 
     def reset(self):
-        self.__key_count = 0
-        self.__row_index = 0
-        self.__col_index = 0
+        self.__keys = []
+        self.__cursor_x = 0
+        self.__cursor_y = 0
+        self.reset_row_parameters()
+        self.reset_key_parameters()
+
+    def reset_row_parameters(self):
+        self.__current_row_height = 1
+
+    def reset_key_parameters(self):
+        self.__current_key_width = 1
+        self.__current_key_height = 1
 
     @property
     def key_count(self):
-        return self.__key_count
+        return len(self.__keys)
 
     def _process_row_metadata(self, metadata):
-        pass
+        print("got", metadata)
 
     def _process_key_metadata(self, metadata):
         if 'w' in metadata:
-            pass
-            #self.__pcb.set_logical_key_width(float(metadata['w']))
+            self.__current_key_width = float(metadata['w'])
 
-    def _process_key(self, key):
-        logger.info("processing key '%s'" % (key))
-        self.__key_count += 1
+    def _process_key(self, k):
+        logger.info("processing key '%s'" % (k))
+        new_key = key.Key(self.__cursor_x,
+                self.__cursor_y,
+                text=k,
+                width=self.__current_key_width,
+                height=self.__current_key_height)
+        self.__keys.append(new_key)
+        print("key -> ", new_key.__dict__)
 
     def _process_row(self, row):
-        self.__col_index = 0
+        self.reset_row_parameters()
+        self.__cursor_x = 0
         for key in row:
             if isinstance(key, dict):
                 self._process_key_metadata(key)
             else:
                 self._process_key(key)
-                self.__col_index += 1
-                #self.__pcb.advance_cursor()
+                self.__cursor_x += self.__current_key_width
+                self.reset_key_parameters()
 
     def handle_dict(self, kle_dict):
         for row in kle_dict:
@@ -46,8 +63,8 @@ class Parser:
                 self._process_row_metadata(row)
             else:
                 self._process_row(row)
-                self.__row_index += 1
-                #self.__pcb.cursor_carriage_return()
+                self.__cursor_x = 0
+                self.__cursor_y += self.__current_row_height
 
     def load(self, filename):
         self.reset()
