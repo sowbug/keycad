@@ -16,3 +16,6 @@ keycad.ses
 ptvsd_launcher_lib_sklib.py
 ptvsd_launcher.net
 __pycache__/
+build/
+dist/
+keycad.egg-info/

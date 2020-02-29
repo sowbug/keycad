@@ -1,7 +1,7 @@
 import json
 import logging
 
-import key
+from keycad import key
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
