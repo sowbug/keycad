@@ -5,15 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Module",
+            "type": "python",
+            "request": "launch",
+            "module": "keycad.keycad",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "--position_json_filename",
+                "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
+                "${workspaceFolder}/kle_layouts/68keys-io.json"
+            ],
+            "env": {
+                "KICAD_SYMBOL_DIR": "/usr/share/kicad/library"
+            }
+        },
+        {
             "name": "Process current KLE file",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/keycad.py",
+            "cwd": "${workspaceFolder}/keycad",
+            "program": "${workspaceFolder}/keycad/keycad.py",
             "console": "integratedTerminal",
             "args": [
                 "--position_json_filename",
-                "kle_layouts/${fileBasenameNoExtension}.positions.json",
-                "kle_layouts/${fileBasenameNoExtension}.json"
+                "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.positions.json",
+                "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.json"
             ],
             "env": {
                 "KICAD_SYMBOL_DIR": "/usr/share/kicad/library"
