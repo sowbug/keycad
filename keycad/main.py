@@ -8,11 +8,11 @@ import subprocess
 import pcbnew
 from skidl import generate_netlist
 
-from keycad.kle_json import Parser
-from keycad.pcb import Pcb
-from keycad.schematic import KeyCad
-
 KC_TO_MM = 1000000
+
+from keycad import kle
+import pcb
+import schematic
 
 PCB_FILENAME = "keycad.kicad_pcb"
 KINJECTOR_JSON_FILENAME = "keycad-kinjector.json"
@@ -30,23 +30,26 @@ def main():
     parser.add_argument('--out_dir', help='directory to place output files')
     args = parser.parse_args()
 
-    pcb = Pcb(19.05)
+    kbd_pcb = pcb.Pcb(19.05)
     if args.position_json_filename is not None:
-        pcb.read_positions(args.position_json_filename)
+        kbd_pcb.read_positions(args.position_json_filename)
     if args.out_dir is not None:
         cwd = args.out_dir
     else:
         cwd = os.getcwd()
 
-    kle_json_parser = Parser()
+    kbd_schematic = schematic.Schematic(kbd_pcb)
+
+    kle_json_parser = kle.Parser()
     kle_json_parser.load(args.kle_json_filename)
+    for key in kle_json_parser.keys:
+        kbd_schematic.add_key(key)
+        kbd_pcb.advance_cursor(False)
 
-    keycad = KeyCad(pcb)
-
-    pro_micro = keycad.create_pro_micro()
-    keycad.connect_pro_micro(pro_micro)
-    reset = keycad.create_reset_switch()
-    keycad.connect_reset_switch(reset, pro_micro)
+    pro_micro = kbd_schematic.create_pro_micro()
+    kbd_schematic.connect_pro_micro(pro_micro)
+    reset = kbd_schematic.create_reset_switch()
+    kbd_schematic.connect_reset_switch(reset, pro_micro)
 
     with open(os.path.join(cwd, NETLIST_FILENAME), "w") as f:
         generate_netlist(file_=f)
@@ -54,7 +57,7 @@ def main():
     with open(os.path.join(cwd, KINJECTOR_JSON_FILENAME), "w") as f:
         f.write(
             json.dumps({'board': {
-                'modules': pcb.get_kinjector_dict()
+                'modules': kbd_pcb.get_kinjector_dict()
             }},
                        sort_keys=True,
                        indent=4))
@@ -69,10 +72,10 @@ def main():
         os.path.join(cwd, PCB_FILENAME)
     ])
 
-    pcb = pcbnew.LoadBoard(os.path.join(cwd, PCB_FILENAME))
-    pcb.ComputeBoundingBox(False)
-    l, t, r, b = pcb.GetBoundingBox().GetLeft(), pcb.GetBoundingBox().GetTop(
-    ), pcb.GetBoundingBox().GetRight(), pcb.GetBoundingBox().GetBottom()
+    kbd_pcb = pcbnew.LoadBoard(os.path.join(cwd, PCB_FILENAME))
+    kbd_pcb.ComputeBoundingBox(False)
+    l, t, r, b = kbd_pcb.GetBoundingBox().GetLeft(), kbd_pcb.GetBoundingBox().GetTop(
+    ), kbd_pcb.GetBoundingBox().GetRight(), kbd_pcb.GetBoundingBox().GetBottom()
 
     def draw_segment(board, x1, y1, x2, y2):
         layer = pcbnew.Edge_Cuts
@@ -104,31 +107,31 @@ def main():
         (r + MARGIN, b + MARGIN),
         (l - MARGIN, b + MARGIN),
     ]
-    draw_segment(pcb, POINTS[0][0] + CORNER_RADIUS, POINTS[0][1],
+    draw_segment(kbd_pcb, POINTS[0][0] + CORNER_RADIUS, POINTS[0][1],
                  POINTS[1][0] - CORNER_RADIUS, POINTS[1][1])
-    draw_segment(pcb, POINTS[1][0], POINTS[1][1] + CORNER_RADIUS, POINTS[2][0],
+    draw_segment(kbd_pcb, POINTS[1][0], POINTS[1][1] + CORNER_RADIUS, POINTS[2][0],
                  POINTS[2][1] - CORNER_RADIUS)
-    draw_segment(pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1],
+    draw_segment(kbd_pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1],
                  POINTS[3][0] + CORNER_RADIUS, POINTS[3][1])
-    draw_segment(pcb, POINTS[3][0], POINTS[3][1] - CORNER_RADIUS, POINTS[0][0],
+    draw_segment(kbd_pcb, POINTS[3][0], POINTS[3][1] - CORNER_RADIUS, POINTS[0][0],
                  POINTS[0][1] + CORNER_RADIUS)
 
-    draw_arc(pcb, POINTS[0][0] + CORNER_RADIUS, POINTS[0][1] + CORNER_RADIUS,
+    draw_arc(kbd_pcb, POINTS[0][0] + CORNER_RADIUS, POINTS[0][1] + CORNER_RADIUS,
              POINTS[0][0], POINTS[0][1] + CORNER_RADIUS, 90)
-    draw_arc(pcb, POINTS[1][0] - CORNER_RADIUS, POINTS[1][1] + CORNER_RADIUS,
+    draw_arc(kbd_pcb, POINTS[1][0] - CORNER_RADIUS, POINTS[1][1] + CORNER_RADIUS,
              POINTS[1][0] - CORNER_RADIUS, POINTS[1][1], 90)
-    draw_arc(pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1] - CORNER_RADIUS,
+    draw_arc(kbd_pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1] - CORNER_RADIUS,
              POINTS[2][0], POINTS[2][1] - CORNER_RADIUS, 90)
-    draw_arc(pcb, POINTS[3][0] + CORNER_RADIUS, POINTS[3][1] - CORNER_RADIUS,
+    draw_arc(kbd_pcb, POINTS[3][0] + CORNER_RADIUS, POINTS[3][1] - CORNER_RADIUS,
              POINTS[3][0] + CORNER_RADIUS, POINTS[3][1], 90)
 
     layertable = {}
 
     numlayers = pcbnew.PCB_LAYER_ID_COUNT
     for i in range(numlayers):
-        layertable[pcb.GetLayerName(i)] = i
+        layertable[kbd_pcb.GetLayerName(i)] = i
 
-    nets = pcb.GetNetsByName()
+    nets = kbd_pcb.GetNetsByName()
 
     powernets = []
 
@@ -141,7 +144,7 @@ def main():
     for netname, layername in (powernets):
         net = nets.find(netname).value()[1]
         layer = layertable[layername]
-        newarea = pcb.InsertArea(
+        newarea = kbd_pcb.InsertArea(
             net.GetNet(), 0, layer, l, t, pcbnew.ZONE_EXPORT_VALUES
         )  # picked random name because ZONE_HATCH_STYLE_DIAGONAL_EDGE was missing
 
@@ -151,11 +154,11 @@ def main():
         newoutline.Append(r, t)
         newarea.Hatch()
 
-    filler = pcbnew.ZONE_FILLER(pcb)
-    zones = pcb.Zones()
+    filler = pcbnew.ZONE_FILLER(kbd_pcb)
+    zones = kbd_pcb.Zones()
     filler.Fill(zones)
 
-    pcbnew.SaveBoard(os.path.join(cwd, PCB_FILENAME), pcb)
+    pcbnew.SaveBoard(os.path.join(cwd, PCB_FILENAME), kbd_pcb)
 
     os.unlink(os.path.join(cwd, KINJECTOR_JSON_FILENAME))
 

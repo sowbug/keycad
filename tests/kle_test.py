@@ -1,11 +1,10 @@
 import unittest
+from keycad import kle
 
-from keycad.kle_json import Parser
 
-
-class TestKleJson(unittest.TestCase):
+class TestKle(unittest.TestCase):
     def test_simple(self):
-        p = Parser()
+        p = kle.Parser()
 
         p.handle_dict({})
         self.assertEqual(p.key_count, 0)
@@ -26,10 +25,12 @@ class TestKleJson(unittest.TestCase):
             },
         }
 
-        p = Parser()
+        p = kle.Parser()
         for basename, s in SAMPLES.items():
             p.load("kle_layouts/%s.json" % (basename))
             self.assertEqual(p.key_count, s['key_count'])
+            for key in p.keys:
+                self.assertTrue(len(key.labels) > 0)
 
 
 if __name__ == "__main__":

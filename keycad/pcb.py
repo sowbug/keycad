@@ -1,5 +1,7 @@
 import json
 
+KC_TO_MM = 1000000
+
 class Pcb:
     def __init__(self, mx_key_width):
         self.__mx_key_width = mx_key_width
@@ -52,12 +54,7 @@ class Pcb:
         self.__key_cursor_x = 0
         self.__key_cursor_y += self.__mx_key_width
 
-    def mark_component_position(self, part, x_offset, y_offset, angle, side):
-        x, y = self.get_part_position()
-        x = (x + x_offset) * KC_TO_MM
-        y = (y + y_offset) * KC_TO_MM
-        (x, y, angle,
-         side) = self.maybe_override_position(part, x, y, angle, side)
+    def place_component(self, part, x, y, angle, side):
         self.__kinjector_json[part.ref] = {
             'position': {
                 'x': x,
@@ -66,6 +63,19 @@ class Pcb:
                 'side': side
             }
         }
+
+    def mark_component_position(self, part, x_offset, y_offset, angle, side):
+        x, y = self.get_part_position()
+        x = (x + x_offset) * KC_TO_MM
+        y = (y + y_offset) * KC_TO_MM
+        (x, y, angle,
+         side) = self.maybe_override_position(part, x, y, angle, side)
+        self.place_component(part, x, y, angle, side)
+
+    def place_component_on_keyboard_grid(self, part, x, y, angle, side):
+        x = (x * self.__mx_key_width) * KC_TO_MM
+        y = (y * self.__mx_key_width) * KC_TO_MM
+        self.place_component(part, x, y, angle, side)
 
     def mark_switch_position(self, part):
         self.mark_component_position(part, 0, 0, 180, 'top')

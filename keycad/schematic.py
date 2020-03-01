@@ -1,5 +1,7 @@
 from skidl import Part, Net, NETLIST
 
+from keycad import key
+
 # KiCad explodes with raw quote
 # freerouting.jar explodes with raw backtick
 SYMBOL_TO_ALNUM = {
@@ -17,7 +19,7 @@ SYMBOL_TO_ALNUM = {
 }
 
 
-class KeyCad:
+class Schematic:
     def __init__(self, pcb):
         self.__keysw_partno = 1
         self.__d_partno = 1
@@ -36,13 +38,11 @@ class KeyCad:
         self.__key_matrix_x = 0
         self.__key_matrix_y = 0
 
-    def get_key_name(self, kle_name):
-        parts = kle_name.split("\n")
-        if len(parts) > 1:
-            kle_name = parts[len(parts) - 1]
-        if kle_name in SYMBOL_TO_ALNUM:
-            return SYMBOL_TO_ALNUM[kle_name]
-        return kle_name
+    def get_key_value(self, key_labels):
+        label = key_labels[0]
+        if label in SYMBOL_TO_ALNUM:
+            return SYMBOL_TO_ALNUM[label]
+        return label
 
     def create_keyswitch(self, key):
         # keyboard_parts.lib is found at https://github.com/tmk/kicad_lib_tmk
@@ -51,9 +51,10 @@ class KeyCad:
                     NETLIST,
                     footprint='keycad:Kailh_socket_MX')
         part.ref = "K%d" % (self.__keysw_partno)
-        part.value = self.get_key_name(str(key))
+        part.value = self.get_key_value(key.labels)
         self.__keysw_partno += 1
-        self.__pcb.mark_switch_position(part)
+        self.__pcb.place_component_on_keyboard_grid(part, key.x, key.y, 0,
+                                                    "top")
         return part
 
     def create_diode(self):
@@ -87,7 +88,7 @@ class KeyCad:
         led[4].net.name = "%s_DIN" % led.ref
         self.__led_dout_pin = led[2]
 
-    def process_key(self, key):
+    def add_key(self, key):
         keysw_part = self.create_keyswitch(key)
         d_part = self.create_diode()
         led_part = self.create_per_key_led()
@@ -97,8 +98,8 @@ class KeyCad:
 
         self.connect_per_key_led(led_part)
 
-        self.__key_matrix_rows[self.__key_matrix_x] += d_part[1]
-        self.__key_matrix_cols[self.__key_matrix_y] += keysw_part[1]
+        #self.__key_matrix_rows[self.__key_matrix_x] += d_part[1]
+        #self.__key_matrix_cols[self.__key_matrix_y] += keysw_part[1]
 
         self.__key_matrix_x += 1
         if self.__key_matrix_x >= len(self.__key_matrix_cols):

@@ -1,3 +1,7 @@
+'''
+kle knows about keyboard-layout-editor.com JSON files.
+'''
+
 import json
 import logging
 
@@ -27,10 +31,14 @@ class Parser:
 
     @property
     def key_count(self):
-        return len(self.__keys)
+        return len(self.keys)
+
+    @property
+    def keys(self):
+        return self.__keys
 
     def _process_row_metadata(self, metadata):
-        print("got", metadata)
+        pass
 
     def _process_key_metadata(self, metadata):
         if 'w' in metadata:
@@ -39,12 +47,11 @@ class Parser:
     def _process_key(self, k):
         logger.info("processing key '%s'" % (k))
         new_key = key.Key(self.__cursor_x,
-                self.__cursor_y,
-                text=k,
-                width=self.__current_key_width,
-                height=self.__current_key_height)
+                          self.__cursor_y,
+                          text=k,
+                          width=self.__current_key_width,
+                          height=self.__current_key_height)
         self.__keys.append(new_key)
-        print("key -> ", new_key.__dict__)
 
     def _process_row(self, row):
         self.reset_row_parameters()

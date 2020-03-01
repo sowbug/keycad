@@ -26,8 +26,8 @@
             "name": "Process current KLE file",
             "type": "python",
             "request": "launch",
-            "cwd": "${workspaceFolder}/keycad",
-            "program": "${workspaceFolder}/keycad/keycad.py",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/keycad/main.py",
             "console": "integratedTerminal",
             "args": [
                 "--position_json_filename",
@@ -35,7 +35,8 @@
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.json"
             ],
             "env": {
-                "KICAD_SYMBOL_DIR": "/usr/share/kicad/library"
+                "KICAD_SYMBOL_DIR": "${workspaceFolder}",
+                "KISYSMOD": "${workspaceFolder}",
             }
         }
     ]
