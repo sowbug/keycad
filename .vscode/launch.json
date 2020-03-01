@@ -13,10 +13,13 @@
             "args": [
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
+                "--out_dir",
+                "${workspaceFolder}/out",
                 "${workspaceFolder}/kle_layouts/68keys-io.json"
             ],
             "env": {
-                "KICAD_SYMBOL_DIR": "/usr/share/kicad/library"
+                "KICAD_SYMBOL_DIR": "${workspaceFolder}",
+                "KISYSMOD": "${workspaceFolder}",
             }
         },
         {
