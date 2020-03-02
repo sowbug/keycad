@@ -11,8 +11,8 @@ from skidl import generate_netlist
 KC_TO_MM = 1000000
 
 from keycad import kle
-import pcb
-import schematic
+from keycad import pcb
+from keycad import schematic
 
 PCB_FILENAME = "keycad.kicad_pcb"
 KINJECTOR_JSON_FILENAME = "keycad-kinjector.json"
