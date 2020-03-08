@@ -55,8 +55,7 @@ class Schematic:
         part.ref = "K%d" % (self.__keysw_partno)
         part.value = self.get_key_value(key.labels)
         self.__keysw_partno += 1
-        self.__pcb.place_keyswitch_on_keyboard_grid(part, key.x, key.y,
-                                                    key.width, key.height)
+        self.__pcb.place_keyswitch_on_keyboard_grid(part, key)
         return part
 
     def connect_keyswitch_and_diode(self, keysw_part, diode_part):
@@ -79,7 +78,7 @@ class Schematic:
         part.ref = "LED%d" % (self.__led_partno)
         part.value = "SK6812MINI-E"
         self.__led_partno += 1
-        self.__pcb.place_led_on_keyboard_grid(part, key.x, key.y)
+        self.__pcb.place_led_on_keyboard_grid(part, key)
         return part
 
     def connect_per_key_led(self, led):
@@ -99,7 +98,7 @@ class Schematic:
         part.ref = "D%d" % (self.__d_partno)
         part.value = "1N4148"
         self.__d_partno += 1
-        self.__pcb.place_diode_on_keyboard_grid(part, key.x, key.y)
+        self.__pcb.place_diode_on_keyboard_grid(part, key)
         return part
 
     def add_key(self, key):
@@ -163,19 +162,21 @@ class Schematic:
         self.__next_dout_pin = next_dout_pin
 
     def create_pro_micro(self):
-        pro_micro = Part('keycad',
-                         'ProMicro',
-                         NETLIST,
-                         footprint='keycad:ArduinoProMicro')
-        pro_micro.ref = 'U1'
-        pro_micro.value = 'Pro Micro'
-        return pro_micro
+        part = Part('keycad',
+                    'ProMicro',
+                    NETLIST,
+                    footprint='keycad:ArduinoProMicro')
+        part.ref = 'U1'
+        part.value = 'Pro Micro'
+        self.__pcb.place_pro_micro_on_keyboard_grid(part)
+        return part
 
     def create_reset_switch(self):
-        reset = Part('keycad',
-                     'SW_Push',
-                     NETLIST,
-                     footprint='keycad:SW_SPST_SKQG_WithoutStem')
-        reset.ref = 'SW1'
-        reset.value = 'SKQGAKE010'
-        return reset
+        part = Part('keycad',
+                    'SW_Push',
+                    NETLIST,
+                    footprint='keycad:SW_SPST_SKQG_WithoutStem')
+        part.ref = 'SW1'
+        part.value = 'SKQGAKE010'
+        self.__pcb.place_reset_switch_on_keyboard_grid(part)
+        return part

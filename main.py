@@ -56,7 +56,7 @@ def main():
     with open(os.path.join(cwd, KINJECTOR_JSON_FILENAME), "w") as f:
         f.write(
             json.dumps({'board': {
-                'modules': kbd_pcb.get_kinjector_dict()
+                'modules': kbd_pcb.kinjector_dict
             }},
                        sort_keys=True,
                        indent=4))
@@ -71,10 +71,17 @@ def main():
         os.path.join(cwd, PCB_FILENAME)
     ])
 
+    # TODO(miket): the PCB BB should be determined by keyboard grid * key width.
+    # For example, 68-key layout is 17 x 4.75 or 323.85 x 90.4875. Then any
+    # non-key components should fit in any empty spaces, or else explicitly
+    # take up a new area dedicated to them.
     kbd_pcb = pcbnew.LoadBoard(os.path.join(cwd, PCB_FILENAME))
     kbd_pcb.ComputeBoundingBox(False)
-    l, t, r, b = kbd_pcb.GetBoundingBox().GetLeft(), kbd_pcb.GetBoundingBox().GetTop(
-    ), kbd_pcb.GetBoundingBox().GetRight(), kbd_pcb.GetBoundingBox().GetBottom()
+    l, t, r, b = kbd_pcb.GetBoundingBox().GetLeft(), kbd_pcb.GetBoundingBox(
+    ).GetTop(), kbd_pcb.GetBoundingBox().GetRight(), kbd_pcb.GetBoundingBox(
+    ).GetBottom()
+    print("component bounding box is (%d %d) (%d %d)" % (l, t, r, b))
+    print("h/w mm (%0.2f %0.2f)" % ((r - l) / KC_TO_MM, (b - t) / KC_TO_MM))
 
     def draw_segment(board, x1, y1, x2, y2):
         layer = pcbnew.Edge_Cuts
@@ -108,21 +115,25 @@ def main():
     ]
     draw_segment(kbd_pcb, POINTS[0][0] + CORNER_RADIUS, POINTS[0][1],
                  POINTS[1][0] - CORNER_RADIUS, POINTS[1][1])
-    draw_segment(kbd_pcb, POINTS[1][0], POINTS[1][1] + CORNER_RADIUS, POINTS[2][0],
-                 POINTS[2][1] - CORNER_RADIUS)
+    draw_segment(kbd_pcb, POINTS[1][0], POINTS[1][1] + CORNER_RADIUS,
+                 POINTS[2][0], POINTS[2][1] - CORNER_RADIUS)
     draw_segment(kbd_pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1],
                  POINTS[3][0] + CORNER_RADIUS, POINTS[3][1])
-    draw_segment(kbd_pcb, POINTS[3][0], POINTS[3][1] - CORNER_RADIUS, POINTS[0][0],
-                 POINTS[0][1] + CORNER_RADIUS)
+    draw_segment(kbd_pcb, POINTS[3][0], POINTS[3][1] - CORNER_RADIUS,
+                 POINTS[0][0], POINTS[0][1] + CORNER_RADIUS)
 
-    draw_arc(kbd_pcb, POINTS[0][0] + CORNER_RADIUS, POINTS[0][1] + CORNER_RADIUS,
-             POINTS[0][0], POINTS[0][1] + CORNER_RADIUS, 90)
-    draw_arc(kbd_pcb, POINTS[1][0] - CORNER_RADIUS, POINTS[1][1] + CORNER_RADIUS,
-             POINTS[1][0] - CORNER_RADIUS, POINTS[1][1], 90)
-    draw_arc(kbd_pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1] - CORNER_RADIUS,
-             POINTS[2][0], POINTS[2][1] - CORNER_RADIUS, 90)
-    draw_arc(kbd_pcb, POINTS[3][0] + CORNER_RADIUS, POINTS[3][1] - CORNER_RADIUS,
-             POINTS[3][0] + CORNER_RADIUS, POINTS[3][1], 90)
+    draw_arc(kbd_pcb, POINTS[0][0] + CORNER_RADIUS,
+             POINTS[0][1] + CORNER_RADIUS, POINTS[0][0],
+             POINTS[0][1] + CORNER_RADIUS, 90)
+    draw_arc(kbd_pcb, POINTS[1][0] - CORNER_RADIUS,
+             POINTS[1][1] + CORNER_RADIUS, POINTS[1][0] - CORNER_RADIUS,
+             POINTS[1][1], 90)
+    draw_arc(kbd_pcb, POINTS[2][0] - CORNER_RADIUS,
+             POINTS[2][1] - CORNER_RADIUS, POINTS[2][0],
+             POINTS[2][1] - CORNER_RADIUS, 90)
+    draw_arc(kbd_pcb, POINTS[3][0] + CORNER_RADIUS,
+             POINTS[3][1] - CORNER_RADIUS, POINTS[3][0] + CORNER_RADIUS,
+             POINTS[3][1], 90)
 
     layertable = {}
 

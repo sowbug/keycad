@@ -9,18 +9,19 @@ class Pcb:
         self.__logical_key_width = 1
         self.__key_cursor_x = 0
         self.__key_cursor_y = 0
-        self.reset_key_attributes()
+        self._reset_key_attributes()
 
         self.__kinjector_json = {}
+
+    @property
+    def kinjector_dict(self):
+        return self.__kinjector_json
 
     def read_positions(self, filename):
         with open(filename, "r") as f:
             self.__kinjector_json = json.loads(f.read())
 
-    def set_logical_key_width(self, width):
-        self.__logical_key_width = width
-
-    def reset_key_attributes(self):
+    def _reset_key_attributes(self):
         self.__logical_key_width = 1
 
     def get_part_position(self):
@@ -49,13 +50,13 @@ class Pcb:
 
     def advance_cursor(self, end_of_row=False):
         self.__key_cursor_x += self.__mx_key_width * self.__logical_key_width
-        self.reset_key_attributes()
+        self._reset_key_attributes()
 
     def cursor_carriage_return(self):
         self.__key_cursor_x = 0
         self.__key_cursor_y += self.__mx_key_width
 
-    def place_component(self, part, x, y, angle, side):
+    def _inject_component(self, part, x, y, angle, side):
         self.__kinjector_json[part.ref] = {
             'position': {
                 'x': x,
@@ -64,14 +65,6 @@ class Pcb:
                 'side': side
             }
         }
-
-    def mark_component_position(self, part, x_offset, y_offset, angle, side):
-        x, y = self.get_part_position()
-        x = (x + x_offset) * KC_TO_MM
-        y = (y + y_offset) * KC_TO_MM
-        (x, y, angle,
-         side) = self.maybe_override_position(part, x, y, angle, side)
-        self.place_component(part, x, y, angle, side)
 
     def convert_keyboard_grid_to_kicad_units(self, x, y, x_offset, y_offset):
         return ((x * self.__mx_key_width + x_offset) * KC_TO_MM,
@@ -89,12 +82,14 @@ class Pcb:
             x, y, x_offset, y_offset)
         (x, y, angle,
          side) = self.maybe_override_position(part, x, y, angle, side)
-        self.place_component(part, x, y, angle, side)
+        self._inject_component(part, x, y, angle, side)
 
-    def place_keyswitch_on_keyboard_grid(self, part, x, y, width, height):
+    def position_from_key(self, key):
+        return (key.x + (key.width - 1) / 2, key.y + (key.height - 1) / 2)
+
+    def place_keyswitch_on_keyboard_grid(self, part, key):
+        (x, y) = self.position_from_key(key)
         x_offset, y_offset = (0, 0)
-        x += (width - 1) / 2
-        y += (height - 1) / 2
         self.place_component_on_keyboard_grid(part,
                                               x,
                                               y,
@@ -103,7 +98,8 @@ class Pcb:
                                               x_offset=x_offset,
                                               y_offset=y_offset)
 
-    def place_led_on_keyboard_grid(self, part, x, y):
+    def place_led_on_keyboard_grid(self, part, key):
+        (x, y) = self.position_from_key(key)
         x_offset, y_offset = (0, -self.__mx_key_width / 4)
         self.place_component_on_keyboard_grid(part,
                                               x,
@@ -113,7 +109,8 @@ class Pcb:
                                               x_offset=x_offset,
                                               y_offset=y_offset)
 
-    def place_diode_on_keyboard_grid(self, part, x, y):
+    def place_diode_on_keyboard_grid(self, part, key):
+        (x, y) = self.position_from_key(key)
         x_offset, y_offset = (5, -self.__mx_key_width / 5)
         self.place_component_on_keyboard_grid(part,
                                               x,
@@ -123,19 +120,8 @@ class Pcb:
                                               x_offset=x_offset,
                                               y_offset=y_offset)
 
-    def mark_pro_micro_position(self, part):
-        x, y = 30, -50
-        self.mark_component_position(part, x, y, 0, 'top')
+    def place_pro_micro_on_keyboard_grid(self, part):
+        self.place_component_on_keyboard_grid(part, 10, 3, 0, 'top')
 
-    def mark_reset_switch_position(self, part):
-        x, y = 50, -50
-        self.mark_component_position(part, x, y, 0, 'bottom')
-
-    def get_kinjector_dict(self):
-        return self.__kinjector_json
-
-    def place_pro_micro(self, pro_micro):
-        self.mark_pro_micro_position(pro_micro)
-
-    def place_reset_switch(self, reset):
-        self.mark_reset_switch_position(reset)
+    def place_reset_switch_on_keyboard_grid(self, part):
+        self.place_component_on_keyboard_grid(part, 10, 4, 180, 'bottom')
