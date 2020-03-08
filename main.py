@@ -44,7 +44,6 @@ def main():
     kle_json_parser.load(args.kle_json_filename)
     for key in kle_json_parser.keys:
         kbd_schematic.add_key(key)
-        kbd_pcb.advance_cursor(False)
 
     pro_micro = kbd_schematic.create_pro_micro()
     kbd_schematic.connect_pro_micro(pro_micro)

@@ -2,6 +2,7 @@ import json
 
 KC_TO_MM = 1000000
 
+
 class Pcb:
     def __init__(self, mx_key_width):
         self.__mx_key_width = mx_key_width
@@ -72,21 +73,53 @@ class Pcb:
          side) = self.maybe_override_position(part, x, y, angle, side)
         self.place_component(part, x, y, angle, side)
 
-    def place_component_on_keyboard_grid(self, part, x, y, angle, side):
-        x = (x * self.__mx_key_width) * KC_TO_MM
-        y = (y * self.__mx_key_width) * KC_TO_MM
+    def convert_keyboard_grid_to_kicad_units(self, x, y, x_offset, y_offset):
+        return ((x * self.__mx_key_width + x_offset) * KC_TO_MM,
+                (y * self.__mx_key_width + y_offset) * KC_TO_MM)
+
+    def place_component_on_keyboard_grid(self,
+                                         part,
+                                         x,
+                                         y,
+                                         angle,
+                                         side,
+                                         x_offset=0,
+                                         y_offset=0):
+        (x, y) = self.convert_keyboard_grid_to_kicad_units(
+            x, y, x_offset, y_offset)
+        (x, y, angle,
+         side) = self.maybe_override_position(part, x, y, angle, side)
         self.place_component(part, x, y, angle, side)
 
-    def mark_switch_position(self, part):
-        self.mark_component_position(part, 0, 0, 180, 'top')
+    def place_keyswitch_on_keyboard_grid(self, part, x, y):
+        x_offset, y_offset = (0, 0)
+        self.place_component_on_keyboard_grid(part,
+                                              x,
+                                              y,
+                                              180,
+                                              'top',
+                                              x_offset=x_offset,
+                                              y_offset=y_offset)
 
-    def mark_diode_position(self, part):
-        x_offset, y_offset = (5, -self.__mx_key_width / 5)
-        self.mark_component_position(part, x_offset, y_offset, 90, 'bottom')
-
-    def mark_led_position(self, part):
+    def place_led_on_keyboard_grid(self, part, x, y):
         x_offset, y_offset = (0, -self.__mx_key_width / 4)
-        self.mark_component_position(part, x_offset, y_offset, 0, 'bottom')
+        self.place_component_on_keyboard_grid(part,
+                                              x,
+                                              y,
+                                              0,
+                                              'bottom',
+                                              x_offset=x_offset,
+                                              y_offset=y_offset)
+
+    def place_diode_on_keyboard_grid(self, part, x, y):
+        x_offset, y_offset = (5, -self.__mx_key_width / 5)
+        self.place_component_on_keyboard_grid(part,
+                                              x,
+                                              y,
+                                              90,
+                                              'bottom',
+                                              x_offset=x_offset,
+                                              y_offset=y_offset)
 
     def mark_pro_micro_position(self, part):
         x, y = 30, -50

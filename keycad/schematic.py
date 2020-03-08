@@ -53,19 +53,23 @@ class Schematic:
         part.ref = "K%d" % (self.__keysw_partno)
         part.value = self.get_key_value(key.labels)
         self.__keysw_partno += 1
-        self.__pcb.place_component_on_keyboard_grid(part, key.x, key.y, 0,
-                                                    "top")
+        print("placing keyswitch at %d %d" % (key.x, key.y))
+        self.__pcb.place_keyswitch_on_keyboard_grid(part, key.x, key.y)
         return part
 
-    def create_diode(self):
-        part = Part('keycad', 'D', NETLIST, footprint='keycad:D_0805')
-        part.ref = "D%d" % (self.__d_partno)
-        part.value = "1N4148"
-        self.__d_partno += 1
-        self.__pcb.mark_diode_position(part)
-        return part
+    def connect_keyswitch_and_diode(self, keysw_part, diode_part):
+        net = Net("%s_%s" % (keysw_part.ref, diode_part.ref))
+        net += keysw_part[2], diode_part[2]
+        #self.__key_matrix_rows[self.__key_matrix_x] += d_part[1]
+        #self.__key_matrix_cols[self.__key_matrix_y] += keysw_part[1]
 
-    def create_per_key_led(self):
+
+#        self.__key_matrix_x += 1
+#        if self.__key_matrix_x >= len(self.__key_matrix_cols):
+#            self.__key_matrix_x = 0
+#            self.__key_matrix_y += 1
+
+    def create_key_led(self, key):
         part = Part('keycad',
                     'SK6812MINI-E',
                     NETLIST,
@@ -73,7 +77,8 @@ class Schematic:
         part.ref = "LED%d" % (self.__led_partno)
         part.value = "SK6812MINI-E"
         self.__led_partno += 1
-        self.__pcb.mark_led_position(part)
+        print("placing LED at %d %d" % (key.x, key.y))
+        self.__pcb.place_led_on_keyboard_grid(part, key.x, key.y)
         return part
 
     def connect_per_key_led(self, led):
@@ -88,23 +93,21 @@ class Schematic:
         led[4].net.name = "%s_DIN" % led.ref
         self.__led_dout_pin = led[2]
 
+    def create_diode(self, key):
+        part = Part('keycad', 'D', NETLIST, footprint='keycad:D_0805')
+        part.ref = "D%d" % (self.__d_partno)
+        part.value = "1N4148"
+        self.__d_partno += 1
+        self.__pcb.place_diode_on_keyboard_grid(part, key.x, key.y)
+        return part
+
     def add_key(self, key):
         keysw_part = self.create_keyswitch(key)
-        d_part = self.create_diode()
-        led_part = self.create_per_key_led()
+        d_part = self.create_diode(key)
+        self.connect_keyswitch_and_diode(keysw_part, d_part)
 
-        net = Net("%s_%s" % (keysw_part.ref, d_part.ref))
-        net += keysw_part[2], d_part[2]
-
+        led_part = self.create_key_led(key)
         self.connect_per_key_led(led_part)
-
-        #self.__key_matrix_rows[self.__key_matrix_x] += d_part[1]
-        #self.__key_matrix_cols[self.__key_matrix_y] += keysw_part[1]
-
-        self.__key_matrix_x += 1
-        if self.__key_matrix_x >= len(self.__key_matrix_cols):
-            self.__key_matrix_x = 0
-            self.__key_matrix_y += 1
 
     def create_matrix_nets(self):
         # TODO(miket): calculate right number
