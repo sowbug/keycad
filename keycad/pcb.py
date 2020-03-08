@@ -91,8 +91,10 @@ class Pcb:
          side) = self.maybe_override_position(part, x, y, angle, side)
         self.place_component(part, x, y, angle, side)
 
-    def place_keyswitch_on_keyboard_grid(self, part, x, y):
+    def place_keyswitch_on_keyboard_grid(self, part, x, y, width, height):
         x_offset, y_offset = (0, 0)
+        x += (width - 1) / 2
+        y += (height - 1) / 2
         self.place_component_on_keyboard_grid(part,
                                               x,
                                               y,

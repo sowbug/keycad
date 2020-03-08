@@ -28,6 +28,8 @@ class Parser:
     def reset_key_parameters(self):
         self.__current_key_width = 1
         self.__current_key_height = 1
+        self.__current_key_x_padding = 0
+        self.__current_key_y_padding = 0
 
     @property
     def key_count(self):
@@ -43,11 +45,15 @@ class Parser:
     def _process_key_metadata(self, metadata):
         if 'w' in metadata:
             self.__current_key_width = float(metadata['w'])
+        if 'x' in metadata:
+            self.__current_key_x_padding = float(metadata['x'])
+        if 'y' in metadata:
+            self.__current_key_y_padding = float(metadata['y'])
 
     def _process_key(self, k):
         logger.info("processing key '%s'" % (k))
-        new_key = key.Key(self.__cursor_x,
-                          self.__cursor_y,
+        new_key = key.Key(self.__cursor_x + self.__current_key_x_padding,
+                          self.__cursor_y + self.__current_key_y_padding,
                           text=k,
                           width=self.__current_key_width,
                           height=self.__current_key_height)
@@ -61,7 +67,8 @@ class Parser:
                 self._process_key_metadata(key)
             else:
                 self._process_key(key)
-                self.__cursor_x += self.__current_key_width
+                self.__cursor_x += (self.__current_key_width +
+                                    self.__current_key_x_padding)
                 self.reset_key_parameters()
 
     def handle_dict(self, kle_dict):
@@ -71,7 +78,10 @@ class Parser:
             else:
                 self._process_row(row)
                 self.__cursor_x = 0
-                self.__cursor_y += self.__current_row_height
+                # TODO(miket): I'm not sure about the y padding.
+                # That seems more like an attribute of the whole row
+                self.__cursor_y += (self.__current_row_height +
+                                    self.__current_key_y_padding)
 
     def load(self, filename):
         self.reset()

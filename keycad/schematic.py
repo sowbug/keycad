@@ -1,4 +1,6 @@
-from skidl import Part, Net, NETLIST
+import sys
+
+from skidl import NETLIST, Net, Part
 
 from keycad import key
 
@@ -53,8 +55,8 @@ class Schematic:
         part.ref = "K%d" % (self.__keysw_partno)
         part.value = self.get_key_value(key.labels)
         self.__keysw_partno += 1
-        print("placing keyswitch at %d %d" % (key.x, key.y))
-        self.__pcb.place_keyswitch_on_keyboard_grid(part, key.x, key.y)
+        self.__pcb.place_keyswitch_on_keyboard_grid(part, key.x, key.y,
+                                                    key.width, key.height)
         return part
 
     def connect_keyswitch_and_diode(self, keysw_part, diode_part):
@@ -77,7 +79,6 @@ class Schematic:
         part.ref = "LED%d" % (self.__led_partno)
         part.value = "SK6812MINI-E"
         self.__led_partno += 1
-        print("placing LED at %d %d" % (key.x, key.y))
         self.__pcb.place_led_on_keyboard_grid(part, key.x, key.y)
         return part
 
