@@ -26,6 +26,6 @@ setuptools.setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        "skidl >= 0.0.29", "kinjector >= 0.0.6", "kinet2pcb >= 0.1.0"
+        "skidl >= 0.0.29", "kinjector >= 0.0.6", "kinet2pcb >= 0.1.1"
     ],
 )
