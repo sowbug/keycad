@@ -2,7 +2,7 @@
   {
     "name": "ANSI TKL Tenkeyless",
     "author": "https://github.com/sowbug/",
-    "switchMount": "cherry"
+    "notes": "The \"ANSI 104\" layout on keyboard-layout-editor.com without the numpad"
   },
   [
     "Esc",

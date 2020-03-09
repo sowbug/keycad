@@ -1,8 +1,8 @@
 [
   {
-    "name": "ANSI 104-key",
+    "name": "ANSI 104",
     "author": "https://github.com/sowbug/",
-    "switchMount": "cherry"
+    "notes": "Slightly modified version of the \"ANSI 104\" layout on keyboard-layout-editor.com"
   },
   [
     "Esc",

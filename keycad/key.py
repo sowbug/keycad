@@ -1,10 +1,11 @@
 class Key:
-    def __init__(self, x, y, text='none', width=1, height=1):
+    def __init__(self, x, y, text='none', width=1, height=1, is_homing=False):
         self.__labels = text.split("\n")
         self.__x = x
         self.__y = y
         self.__width = width
         self.__height = height
+        self.__is_homing = is_homing
 
     @property
     def labels(self):
@@ -25,3 +26,10 @@ class Key:
     @property
     def height(self):
         return self.__height
+
+    @property
+    def is_homing(self):
+        return self.__is_homing
+    
+    def __str__(self):
+        return "%s [%.2f %.2f]" % (self.__labels[0], self.x, self.y)

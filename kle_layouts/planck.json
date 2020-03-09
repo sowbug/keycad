@@ -1,7 +1,8 @@
 [
   {
-    "name": "Planck Default",
-    "switchMount": "cherry"
+    "name": "Planck",
+    "author": "https://github.com/sowbug/",
+    "notes": "Slightly modified version of the \"Planck\" layout on keyboard-layout-editor.com"
   },
   [
     {

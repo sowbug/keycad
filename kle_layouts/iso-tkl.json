@@ -1,7 +1,8 @@
 [
   {
     "name": "ISO TKL Tenkeyless",
-    "author": "https://github.com/sowbug/"
+    "author": "https://github.com/sowbug/",
+    "notes": "The \"ISO 105\" layout on keyboard-layout-editor.com without the numpad"
   },
   [
     "Esc",

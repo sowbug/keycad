@@ -1,7 +1,8 @@
 [
   {
     "name": "ISO 105",
-    "author": "https://github.com/sowbug/"
+    "author": "https://github.com/sowbug/",
+    "notes": "Slightly modified version of the \"ISO 105\" layout on keyboard-layout-editor.com"
   },
   [
     "Esc",

@@ -1,6 +1,8 @@
 [
   {
-    "name": "number-pad"
+    "name": "Number Pad",
+    "author": "https://github.com/sowbug/",
+    "notes": "Slightly modified version of the default layout on keyboard-layout-editor.com"
   },
   [
     "Num Lock",

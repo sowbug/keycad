@@ -1,6 +1,8 @@
 [
   {
-    "name": "default-60-percent"
+    "name": "Default 60",
+    "author": "https://github.com/sowbug/keycad",
+    "notes": "Slightly modified version of the \"Default 60%\" layout on keyboard-layout-editor.com"
   },
   [
     "~\n`",
@@ -51,9 +53,15 @@
     "A",
     "S",
     "D",
+    {
+      "n": true
+    },
     "F",
     "G",
     "H",
+    {
+      "n": true
+    },
     "J",
     "K",
     "L",

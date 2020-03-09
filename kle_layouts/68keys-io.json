@@ -1,10 +1,8 @@
 [
   {
-    "backcolor": "#b8b8b8",
     "name": "68Keys.io",
-    "author": "Layout for custom 68% Mechanical Keyboard - https://68Keys.io",
-    "switchMount": "cherry",
-    "plate": true
+    "author": "https://68Keys.io",
+    "notes": "A 68-key layout resembling the Magicforce 68"
   },
   [
     "~\n`",
@@ -65,9 +63,15 @@
     "A",
     "S",
     "D",
+    {
+      "n": true
+    },
     "F",
     "G",
     "H",
+    {
+      "n": true
+    },
     "J",
     "K",
     "L",

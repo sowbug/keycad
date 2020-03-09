@@ -1,6 +1,8 @@
 [
   {
-    "name": "gherkin-base-layer"
+    "name": "Gherkin",
+    "author": "https://github.com/sowbug/",
+    "notes": "The base layer of the Gherkin http://www.40percent.club/2016/11/gherkin.html"
   },
   [
     {

@@ -1,6 +1,8 @@
 [
   {
-    "name": "Preonic"
+    "name": "Preonic",
+    "author": "https://github.com/sowbug/",
+    "notes": "Adaptation of olkb.com/preonic"
   },
   [
     "~\n`",
