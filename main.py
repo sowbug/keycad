@@ -40,6 +40,8 @@ def main():
 
     kbd_schematic = schematic.Schematic(kbd_pcb)
 
+    kbd_schematic.create_matrix_nets()
+
     kle_json_parser = kle.Parser()
     kle_json_parser.load(args.kle_json_filename)
     for key in kle_json_parser.keys:
