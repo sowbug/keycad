@@ -13,7 +13,20 @@ SYMBOL_TO_ALNUM = {
     "↓": 'DOWN',
     "←": 'LEFT',
     "→": 'RGHT',
-    "": 'SPC',
+    "":  'SPC',
+    "|": 'BAR',
+    "!": 'EXCL',
+    "@": 'AT',
+    "#": 'HASH',
+    "$": 'DLR',
+    "%": 'PCT',
+    "^": 'CRT',
+    "&": 'AMP',
+    "*": 'AST',
+    "(": 'LPRN',
+    ")": 'RPRN',
+    "-": 'DASH',
+    "=": 'EQU',
     "Caps Lock": 'CAPS',
     "Shift": 'SHFT',
     "Backspace": "BSPC",
@@ -41,7 +54,10 @@ class Schematic:
         self.__key_matrix_y = 0
 
     def get_key_value(self, key_labels):
-        label = key_labels[0]
+        if len(key_labels) > 1:
+            label = key_labels[1]
+        else:
+            label = key_labels[0]
         if label in SYMBOL_TO_ALNUM:
             return SYMBOL_TO_ALNUM[label]
         return label
@@ -57,18 +73,6 @@ class Schematic:
         self.__keysw_partno += 1
         self.__pcb.place_keyswitch_on_keyboard_grid(part, key)
         return part
-
-    def connect_keyswitch_and_diode(self, keysw_part, diode_part):
-        net = Net("%s_%s" % (keysw_part.ref, diode_part.ref))
-        net += keysw_part[2], diode_part[2]
-        #self.__key_matrix_rows[self.__key_matrix_x] += d_part[1]
-        #self.__key_matrix_cols[self.__key_matrix_y] += keysw_part[1]
-
-
-#        self.__key_matrix_x += 1
-#        if self.__key_matrix_x >= len(self.__key_matrix_cols):
-#            self.__key_matrix_x = 0
-#            self.__key_matrix_y += 1
 
     def create_key_led(self, key):
         part = Part('keycad',
@@ -101,10 +105,27 @@ class Schematic:
         self.__pcb.place_diode_on_keyboard_grid(part, key)
         return part
 
+    def connect_to_matrix(self, pin_1, pin_2):
+        self.__key_matrix_rows[self.__key_matrix_x] += pin_1
+        self.__key_matrix_cols[self.__key_matrix_y] += pin_2
+
+        # TODO(miket): for now we naively assume that keys are connected
+        # left to right, top to bottom. Eventually we should replace this
+        # with something that fits the actual board layout.
+        self.__key_matrix_x += 1
+        if self.__key_matrix_x >= len(self.__key_matrix_cols):
+            self.__key_matrix_x = 0
+            self.__key_matrix_y += 1
+
+    def connect_keyswitch_and_diode(self, key, keysw_part, diode_part):
+        net = Net("%s_%s" % (keysw_part.ref, diode_part.ref))
+        net += keysw_part[2], diode_part[2]
+        self.connect_to_matrix(diode_part[1], keysw_part[1])
+
     def add_key(self, key):
         keysw_part = self.create_keyswitch(key)
         d_part = self.create_diode(key)
-        self.connect_keyswitch_and_diode(keysw_part, d_part)
+        self.connect_keyswitch_and_diode(key, keysw_part, d_part)
 
         led_part = self.create_key_led(key)
         self.connect_per_key_led(led_part)
