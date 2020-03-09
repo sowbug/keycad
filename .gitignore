@@ -20,3 +20,4 @@ build/
 dist/
 keycad.egg-info/
 main_lib_sklib.py
+gui_defaults.par
