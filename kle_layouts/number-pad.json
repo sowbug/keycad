@@ -1,21 +1,14 @@
 [
   {
     "name": "Number Pad",
-    "author": "https://github.com/sowbug/",
-    "notes": "Slightly modified version of the default layout on keyboard-layout-editor.com"
+    "author": "http://www.keyboard-layout-editor.com/#/gists/71abc8741acb1b99ae37b660513f929c",
+    "notes": "Slightly modified version of the default layout on keyboard-layout-editor.com. https://github.com/sowbug/keycad"
   },
   [
     "Num Lock",
     "/",
     "*",
-    "-",
-    {
-      "x": 0.25,
-      "f": 4,
-      "w": 14,
-      "h": 5,
-      "d": true
-    }
+    "-"
   ],
   [
     {

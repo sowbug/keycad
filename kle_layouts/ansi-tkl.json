@@ -1,8 +1,8 @@
 [
   {
     "name": "ANSI TKL Tenkeyless",
-    "author": "https://github.com/sowbug/",
-    "notes": "The \"ANSI 104\" layout on keyboard-layout-editor.com without the numpad"
+    "author": "http://www.keyboard-layout-editor.com/#/gists/3c0d9098a34f1381fb34f21fb115e93a",
+    "notes": "The \"ANSI 104\" layout on keyboard-layout-editor.com without the numpad. https://github.com/sowbug/keycad"
   },
   [
     "Esc",

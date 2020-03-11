@@ -1,8 +1,8 @@
 [
   {
-    "name": "68Keys.io",
-    "author": "https://68Keys.io",
-    "notes": "A 68-key layout resembling the Magicforce 68"
+    "name": "68keys.io",
+    "author": "http://www.keyboard-layout-editor.com/#/gists/0e8349798e7d4cd8748d82f3894bb1fe",
+    "notes": "A 68-key layout resembling the Magicforce 68, but with the upper-left key dedicated to ` and ~, and the Insert key on the upper-right quartet replaced with Escape."
   },
   [
     "~\n`",
@@ -25,7 +25,7 @@
     {
       "x": 0.25
     },
-    "Home",
+    "Esc",
     "PgUp"
   ],
   [
@@ -52,7 +52,7 @@
     {
       "x": 0.25
     },
-    "End",
+    "Del",
     "PgDn"
   ],
   [

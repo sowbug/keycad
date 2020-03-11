@@ -1,8 +1,8 @@
 [
   {
     "name": "ANSI 104",
-    "author": "https://github.com/sowbug/",
-    "notes": "Slightly modified version of the \"ANSI 104\" layout on keyboard-layout-editor.com"
+    "author": "http://www.keyboard-layout-editor.com/#/gists/9bf9eea417665d2f24edbab0bb87bb04",
+    "notes": "Slightly modified version of the \"ANSI 104\" layout on keyboard-layout-editor.com. https://github.com/sowbug/keycad"
   },
   [
     "Esc",
