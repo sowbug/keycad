@@ -13,7 +13,7 @@ SYMBOL_TO_ALNUM = {
     "↓": 'DOWN',
     "←": 'LEFT',
     "→": 'RGHT',
-    "":  'SPC',
+    "": 'SPC',
     "|": 'BAR',
     "!": 'EXCL',
     "@": 'AT',
@@ -52,6 +52,9 @@ class Schematic:
 
         self.__key_matrix_x = 0
         self.__key_matrix_y = 0
+
+        self.__legend_rows = []
+        self.__legend_cols = []
 
     def get_key_value(self, key_labels):
         if len(key_labels) > 1:
@@ -138,20 +141,83 @@ class Schematic:
             self.__key_matrix_cols.append(Net("COL_%d" % x))
 
     def connect_pro_micro(self, pro_micro):
-        PRO_MICRO_GPIOS = [
-            1, 2, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
-        ]
+        # Python 3.7 and later:
+        #
+        # https://mail.python.org/pipermail/python-dev/2017-December/151283.html
+        # Make it so. "Dict keeps insertion order" is the ruling.
+        #
+        # This matters because we want everyone running the same code/KLE
+        # to generate the same board.
+        PRO_MICRO_GPIOS = [{
+            "name": "D3",
+            "pin": 1
+        }, {
+            "name": "D2",
+            "pin": 2
+        }, {
+            "name": "D1",
+            "pin": 5,
+            "supports_led": True
+        }, {
+            "name": "D0",
+            "pin": 6
+        }, {
+            "name": "D4",
+            "pin": 7
+        }, {
+            "name": "C6",
+            "pin": 8
+        }, {
+            "name": "D7",
+            "pin": 9
+        }, {
+            "name": "E6",
+            "pin": 10
+        }, {
+            "name": "B4",
+            "pin": 11
+        }, {
+            "name": "B5",
+            "pin": 12
+        }, {
+            "name": "B6",
+            "pin": 13
+        }, {
+            "name": "B2",
+            "pin": 14
+        }, {
+            "name": "B3",
+            "pin": 15
+        }, {
+            "name": "B1",
+            "pin": 16
+        }, {
+            "name": "F7",
+            "pin": 17
+        }, {
+            "name": "F6",
+            "pin": 18
+        }, {
+            "name": "F5",
+            "pin": 19
+        }, {
+            "name": "F4",
+            "pin": 20
+        }]
 
         next_pin_index = 0
         self.__gnd += pro_micro[3], pro_micro[4], pro_micro[23]
         self.__vcc += pro_micro[21]
 
+        # TODO(miket): change to a method that allows asking for the
+        # next GPIO, and then this can be refactored away
         if self.__led_din_pin is not None:
-            pro_micro[5] += self.__led_din_pin
-        else:
-            # TODO(miket): change to a method that allows asking for the
-            # next GPIO, and then this can be refactored away
-            PRO_MICRO_GPIOS.append(5)
+            led_pin = None
+            for p in PRO_MICRO_GPIOS:
+                if "supports_led" in p and p["supports_led"]:
+                    PRO_MICRO_GPIOS.remove(p)
+                    led_pin = p
+            pro_micro[led_pin["pin"]] += self.__led_din_pin
 
         for row in self.__key_matrix_rows:
             if len(row) == 0:
@@ -168,10 +234,14 @@ class Schematic:
                     self.__key_matrix_cols), len(PRO_MICRO_GPIOS)))
             sys.exit(1)
         for row in self.__key_matrix_rows:
-            row += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
+            p = PRO_MICRO_GPIOS[next_pin_index]
+            row += pro_micro[p["pin"]]
+            self.__legend_rows.append(p["name"])
             next_pin_index += 1
         for col in self.__key_matrix_cols:
-            col += pro_micro[PRO_MICRO_GPIOS[next_pin_index]]
+            p = PRO_MICRO_GPIOS[next_pin_index]
+            col += pro_micro[p["pin"]]
+            self.__legend_cols.append(p["name"])
             next_pin_index += 1
 
     def connect_reset_switch(self, reset, pro_micro):
@@ -201,3 +271,7 @@ class Schematic:
         part.value = 'SKQGAKE010'
         self.__pcb.place_reset_switch_on_keyboard_grid(part)
         return part
+
+    def get_legend(self):
+        return "ROWS: %s\nCOLS: %s" % (" ".join(self.__legend_rows),
+                                       " ".join(self.__legend_cols))

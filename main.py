@@ -52,6 +52,8 @@ def main():
     reset = kbd_schematic.create_reset_switch()
     kbd_schematic.connect_reset_switch(reset, pro_micro)
 
+    print(kbd_schematic.get_legend())
+
     with open(os.path.join(cwd, NETLIST_FILENAME), "w") as f:
         generate_netlist(file_=f)
 
