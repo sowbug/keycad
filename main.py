@@ -43,7 +43,7 @@ def main():
     parser = Parser()
     parser.load(args.kle_json_filename)
 
-    builder = BoardBuilder(parser, schematic, pcb)
+    builder = BoardBuilder(parser, schematic)
     builder.build()
 
     print(schematic.get_legend())

@@ -1,8 +1,7 @@
 class BoardBuilder:
-    def __init__(self, kle, schematic, pcb):
+    def __init__(self, kle, schematic):
         self.__kle = kle
         self.__schematic = schematic
-        self.__pcb = pcb
 
     def build(self):
         self.__schematic.create_matrix_nets()
