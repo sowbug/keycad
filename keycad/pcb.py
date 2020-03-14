@@ -125,3 +125,12 @@ class Pcb:
 
     def place_reset_switch_on_keyboard_grid(self, part):
         self.place_component_on_keyboard_grid(part, 10, 4, 180, 'bottom')
+
+    def write_kinjector_file(self, filename):
+        with open(filename, "w") as f:
+            f.write(
+                json.dumps({'board': {
+                    'modules': self.__kinjector_json
+                }},
+                           sort_keys=True,
+                           indent=4))
