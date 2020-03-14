@@ -19,7 +19,7 @@
     "I",
     "O",
     "P",
-    "Back Space"
+    "Backspace"
   ],
   [
     "Esc",
@@ -53,22 +53,22 @@
     ",",
     ".",
     "/",
-    "Return"
+    "Enter"
   ],
   [
     "",
     "Ctrl",
     "Alt",
     "Super",
-    "&dArr;",
+    "Lower",
     {
       "w": 2
     },
     "",
-    "&uArr;",
-    "&larr;",
-    "&darr;",
-    "&uarr;",
-    "&rarr;"
+    "Raise",
+    "Left",
+    "Down",
+    "Up",
+    "Right"
   ]
 ]
