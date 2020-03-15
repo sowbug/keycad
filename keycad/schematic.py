@@ -89,6 +89,12 @@ class Schematic:
         return part
 
     def connect_per_key_led(self, led):
+        # SK6812 Mini-E
+        # 1 VCC
+        # 2 DOUT
+        # 3 GND
+        # 4 DIN
+        
         self.__vcc += led[1]
         self.__gnd += led[3]
 
@@ -96,8 +102,9 @@ class Schematic:
             self.__led_din_pin = led[4]
         if self.__led_dout_pin is None:
             self.__led_dout_pin = led[2]
-        led[4] += self.__led_dout_pin
-        led[4].net.name = "%s_DIN" % led.ref
+        else:
+            led[4] += self.__led_dout_pin
+            led[4].net.name = "%s_DIN" % led.ref
         self.__led_dout_pin = led[2]
 
     def create_diode(self, key):
@@ -217,7 +224,9 @@ class Schematic:
                 if "supports_led" in p and p["supports_led"]:
                     PRO_MICRO_GPIOS.remove(p)
                     led_pin = p
+                    break
             pro_micro[led_pin["pin"]] += self.__led_din_pin
+            pro_micro[led_pin["pin"]].net.name = "LED_DATA"
 
         for row in self.__key_matrix_rows:
             if len(row) == 0:
