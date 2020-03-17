@@ -34,6 +34,7 @@ the keycad.pretty/ directory as a global footprint library.
 * https://github.com/fcoury/kbpcb
 * https://kbplate.ai03.me/
 * https://keebfol.io/tools
+* https://wiki.ai03.me/books/pcb-design
 
 ## KiCad components and footprints that were copied into here
 
