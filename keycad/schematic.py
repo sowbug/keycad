@@ -34,6 +34,93 @@ SYMBOL_TO_ALNUM = {
 }
 
 
+class Mcu:
+    def __init__(self):
+        self._part = []
+        self._next_pin_index = 0
+        self.gpio_pins = []
+        self.vcc_pins = []
+        self.gnd_pins = []
+        self.led_din_pin = -1
+        self.reset_pin = -1
+
+    def get_gnd_pins(self):
+        pins = []
+        for n in self.gnd_pins:
+            pins.append(self._part[n])
+        return tuple(pins)
+
+    def get_vcc_pins(self):
+        pins = []
+        for n in self.vcc_pins:
+            pins.append(self._part[n])
+        return tuple(pins)
+
+    def gpio_count(self):
+        return len(self.gpio_pins)
+
+    def claim_next_gpio(self):
+        if len(self.gpio_pins) == 0:
+            raise RuntimeError("Ran out of GPIOs")
+        val = self.gpio_pins.pop(0)
+        return (val, self._part[val])
+
+    def get_led_din_pin(self):
+        self.gpio_pins.remove(self.led_din_pin)
+        return self._part[self.led_din_pin]
+
+    def get_reset_pin(self):
+        return self._part[self.reset_pin]
+
+
+class ProMicro(Mcu):
+    GPIOS = [1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    PIN_NAMES = [
+        "D3", "D2", "GND", "GND", "D1", "D0", "D4", "C6", "D7", "E6", "B4",
+        "B5", "B6", "B2", "B3", "B1", "F7", "F6", "F5", "F4", "VCC", "RST",
+        "GND", "RAW"
+    ]
+
+    VCC_PINS = [21]
+    GND_PINS = [3, 4, 23]
+    LED_DIN_PIN = 5
+    RESET_PIN = 22
+
+    def __init__(self):
+        super().__init__()
+        self._part = Part('keycad',
+                          'ProMicro',
+                          NETLIST,
+                          footprint='keycad:ArduinoProMicro')
+        self._part.ref = 'U1'
+        self._part.value = 'Pro Micro'
+        self.gpio_pins = ProMicro.GPIOS.copy()
+        self.gnd_pins = ProMicro.GND_PINS
+        self.vcc_pins = ProMicro.VCC_PINS
+        self.led_din_pin = ProMicro.LED_DIN_PIN
+        self.reset_pin = ProMicro.RESET_PIN
+
+    def place(self, pcb):
+        pcb.place_pro_micro_on_keyboard_grid(self._part)
+
+    def get_pin_name(self, pin_number):
+        return ProMicro.PIN_NAMES[pin_number - 1]
+
+
+class BluePill(Mcu):
+    def __init__(self):
+        super().__init__(self)
+        self._part = Part('keycad',
+                          'ProMicro',
+                          NETLIST,
+                          footprint='keycad:ArduinoProMicro')
+        self._part.ref = 'U2'
+        self._part.value = 'Blue Pill'
+
+    def place(self, pcb):
+        pcb.place_blue_pill_on_keyboard_grid(self._part)
+
+
 class Schematic:
     def __init__(self, pcb):
         self.__keysw_partno = 1
@@ -94,7 +181,7 @@ class Schematic:
         # 2 DOUT
         # 3 GND
         # 4 DIN
-        
+
         self.__vcc += led[1]
         self.__gnd += led[3]
 
@@ -147,86 +234,15 @@ class Schematic:
         for x in range(0, 9):
             self.__key_matrix_cols.append(Net("COL_%d" % x))
 
-    def connect_pro_micro(self, pro_micro):
-        # Python 3.7 and later:
-        #
-        # https://mail.python.org/pipermail/python-dev/2017-December/151283.html
-        # Make it so. "Dict keeps insertion order" is the ruling.
-        #
-        # This matters because we want everyone running the same code/KLE
-        # to generate the same board.
-        PRO_MICRO_GPIOS = [{
-            "name": "D3",
-            "pin": 1
-        }, {
-            "name": "D2",
-            "pin": 2
-        }, {
-            "name": "D1",
-            "pin": 5,
-            "supports_led": True
-        }, {
-            "name": "D0",
-            "pin": 6
-        }, {
-            "name": "D4",
-            "pin": 7
-        }, {
-            "name": "C6",
-            "pin": 8
-        }, {
-            "name": "D7",
-            "pin": 9
-        }, {
-            "name": "E6",
-            "pin": 10
-        }, {
-            "name": "B4",
-            "pin": 11
-        }, {
-            "name": "B5",
-            "pin": 12
-        }, {
-            "name": "B6",
-            "pin": 13
-        }, {
-            "name": "B2",
-            "pin": 14
-        }, {
-            "name": "B3",
-            "pin": 15
-        }, {
-            "name": "B1",
-            "pin": 16
-        }, {
-            "name": "F7",
-            "pin": 17
-        }, {
-            "name": "F6",
-            "pin": 18
-        }, {
-            "name": "F5",
-            "pin": 19
-        }, {
-            "name": "F4",
-            "pin": 20
-        }]
-
-        next_pin_index = 0
-        self.__gnd += pro_micro[3], pro_micro[4], pro_micro[23]
-        self.__vcc += pro_micro[21]
+    def connect_mcu(self, mcu):
+        self.__gnd += mcu.get_gnd_pins()
+        self.__vcc += mcu.get_vcc_pins()
 
         # TODO(miket): change to a method that allows asking for the
         # next GPIO, and then this can be refactored away
         if self.__led_din_pin is not None:
-            led_pin = None
-            for p in PRO_MICRO_GPIOS:
-                if "supports_led" in p and p["supports_led"]:
-                    PRO_MICRO_GPIOS.remove(p)
-                    led_pin = p
-                    break
-            pro_micro[led_pin["pin"]] += self.__led_din_pin
-            pro_micro[led_pin["pin"]].net.name = "LED_DATA"
+            self.__led_din_pin += mcu.get_led_din_pin()
+            self.__led_din_pin.net.name = "LED_DATA"
 
         for row in self.__key_matrix_rows:
             if len(row) == 0:
@@ -236,40 +252,38 @@ class Schematic:
                 self.__key_matrix_cols.remove(col)
 
         if False and len(self.__key_matrix_rows) + len(
-                self.__key_matrix_cols) > len(PRO_MICRO_GPIOS):
+                self.__key_matrix_cols) > mcu.gpio_count():
             print(
                 "ERROR: need pins to connect %d rows and %d cols but have only %d GPIOs"
                 % (len(self.__key_matrix_rows), len(
-                    self.__key_matrix_cols), len(PRO_MICRO_GPIOS)))
+                    self.__key_matrix_cols), mcu.gpio_count()))
             sys.exit(1)
         for row in self.__key_matrix_rows:
-            p = PRO_MICRO_GPIOS[next_pin_index]
-            row += pro_micro[p["pin"]]
-            self.__legend_rows.append(p["name"])
-            next_pin_index += 1
+            pin_no, pin_net = mcu.claim_next_gpio()
+            self.__legend_rows.append(mcu.get_pin_name(pin_no))
+            row += pin_net
         for col in self.__key_matrix_cols:
-            p = PRO_MICRO_GPIOS[next_pin_index]
-            col += pro_micro[p["pin"]]
-            self.__legend_cols.append(p["name"])
-            next_pin_index += 1
+            pin_no, pin_net = mcu.claim_next_gpio()
+            self.__legend_cols.append(mcu.get_pin_name(pin_no))
+            col += pin_net
 
-    def connect_reset_switch(self, reset, pro_micro):
+    def connect_reset_switch(self, reset, mcu):
         self.__gnd += reset[2]
-        pro_micro[22] += reset[1]
+        reset[1] += mcu.get_reset_pin()
         reset[1].net.name = "RST"
 
     def set_next_dout_pin(self, next_dout_pin):
         self.__next_dout_pin = next_dout_pin
 
     def create_pro_micro(self):
-        part = Part('keycad',
-                    'ProMicro',
-                    NETLIST,
-                    footprint='keycad:ArduinoProMicro')
-        part.ref = 'U1'
-        part.value = 'Pro Micro'
-        self.__pcb.place_pro_micro_on_keyboard_grid(part)
-        return part
+        mcu = ProMicro()
+        mcu.place(self.__pcb)
+        return mcu
+
+    def create_blue_pill(self):
+        mcu = BluePill()
+        mcu.place(self.__pcb)
+        return mcu
 
     def create_reset_switch(self):
         part = Part('keycad',
@@ -282,5 +296,5 @@ class Schematic:
         return part
 
     def get_legend(self):
-        return "ROWS: %s\nCOLS: %s" % (" ".join(self.__legend_rows),
-                                       " ".join(self.__legend_cols))
+        return "ROWS: %s\nCOLS: %s" % (" ".join(self.__legend_rows), " ".join(
+            self.__legend_cols))

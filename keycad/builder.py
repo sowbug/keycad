@@ -3,12 +3,17 @@ class BoardBuilder:
         self.__kle = kle
         self.__schematic = schematic
 
-    def build(self):
+    def build(self, add_pro_micro=True, add_blue_pill=False):
         self.__schematic.create_matrix_nets()
         for key in self.__kle.keys:
             self.__schematic.add_key(key)
 
-        pro_micro = self.__schematic.create_pro_micro()
-        self.__schematic.connect_pro_micro(pro_micro)
-        reset = self.__schematic.create_reset_switch()
-        self.__schematic.connect_reset_switch(reset, pro_micro)
+        mcu = None
+        if add_pro_micro:
+            mcu = self.__schematic.create_pro_micro()
+        if add_blue_pill:
+            mcu = self.__schematic.create_blue_pill()
+        if mcu:
+            self.__schematic.connect_mcu(mcu)
+            reset = self.__schematic.create_reset_switch()
+            self.__schematic.connect_reset_switch(reset, mcu)
