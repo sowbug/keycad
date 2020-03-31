@@ -123,6 +123,9 @@ class Pcb:
     def place_pro_micro_on_keyboard_grid(self, part):
         self.place_component_on_keyboard_grid(part, 10, 3, 0, 'top')
 
+    def place_blue_pill_on_keyboard_grid(self, part):
+        self.place_component_on_keyboard_grid(part, 10, 3, 0, 'top')
+
     def place_reset_switch_on_keyboard_grid(self, part):
         self.place_component_on_keyboard_grid(part, 10, 4, 180, 'bottom')
 

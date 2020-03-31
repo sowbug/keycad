@@ -38,54 +38,63 @@ class Mcu:
     def __init__(self):
         self._part = []
         self._next_pin_index = 0
-        self.gpio_pins = []
-        self.vcc_pins = []
-        self.gnd_pins = []
-        self.led_din_pin = -1
-        self.reset_pin = -1
+        self.gpio_pin_nos = []
+        self.pin_names = []
+        self.vcc_pin_nos = []
+        self.gnd_pin_nos = []
+        self.led_din_pin_no = -1
+        self.reset_pin_no = -1
+
+    def pin_count(self):
+        return len(self.pin_names)
+
+    def get_pin_name(self, pin_no):
+        return self.pin_names[pin_no - 1]
+
+    def populate_pins(self, pin_names):
+        for pin_no in range(1, self.pin_count()):
+            name = self.get_pin_name(pin_no)
+            if name == "GND":
+                self.gnd_pin_nos.append(pin_no)
+            if name == "VCC":
+                self.vcc_pin_nos.append(pin_no)
+            if name == "RST":
+                self.reset_pin_no = pin_no
 
     def get_gnd_pins(self):
         pins = []
-        for n in self.gnd_pins:
-            pins.append(self._part[n])
+        for no in self.gnd_pin_nos:
+            pins.append(self._part[no])
         return tuple(pins)
 
     def get_vcc_pins(self):
-        pins = []
-        for n in self.vcc_pins:
-            pins.append(self._part[n])
-        return tuple(pins)
+        pin_nos = []
+        for no in self.vcc_pin_nos:
+            pin_nos.append(self._part[no])
+        return tuple(pin_nos)
 
     def gpio_count(self):
-        return len(self.gpio_pins)
+        return len(self.gpio_pin_nos)
 
     def claim_next_gpio(self):
-        if len(self.gpio_pins) == 0:
+        if len(self.gpio_pin_nos) == 0:
             raise RuntimeError("Ran out of GPIOs")
-        val = self.gpio_pins.pop(0)
+        val = self.gpio_pin_nos.pop(0)
         return (val, self._part[val])
 
-    def get_led_din_pin(self):
-        self.gpio_pins.remove(self.led_din_pin)
-        return self._part[self.led_din_pin]
+    def claim_led_din_pin(self):
+        if self.led_din_pin_no in self.gpio_pin_nos:
+            self.gpio_pin_nos.remove(self.led_din_pin_no)
+        return self._part[self.led_din_pin_no]
+
+    def get_reset_pin_no(self):
+        return self.reset_pin_no
 
     def get_reset_pin(self):
-        return self._part[self.reset_pin]
+        return self._part[self.get_reset_pin_no()]
 
 
 class ProMicro(Mcu):
-    GPIOS = [1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-    PIN_NAMES = [
-        "D3", "D2", "GND", "GND", "D1", "D0", "D4", "C6", "D7", "E6", "B4",
-        "B5", "B6", "B2", "B3", "B1", "F7", "F6", "F5", "F4", "VCC", "RST",
-        "GND", "RAW"
-    ]
-
-    VCC_PINS = [21]
-    GND_PINS = [3, 4, 23]
-    LED_DIN_PIN = 5
-    RESET_PIN = 22
-
     def __init__(self):
         super().__init__()
         self._part = Part('keycad',
@@ -94,28 +103,90 @@ class ProMicro(Mcu):
                           footprint='keycad:ArduinoProMicro')
         self._part.ref = 'U1'
         self._part.value = 'Pro Micro'
-        self.gpio_pins = ProMicro.GPIOS.copy()
-        self.gnd_pins = ProMicro.GND_PINS
-        self.vcc_pins = ProMicro.VCC_PINS
-        self.led_din_pin = ProMicro.LED_DIN_PIN
-        self.reset_pin = ProMicro.RESET_PIN
+        self.gpio_pin_nos = [
+            1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+        ]
+        self.pin_names = [
+            "D3", "D2", "GND", "GND", "D1", "D0", "D4", "C6", "D7", "E6", "B4",
+            "B5", "B6", "B2", "B3", "B1", "F7", "F6", "F5", "F4", "VCC", "RST",
+            "GND", "RAW"
+        ]
+        self.populate_pins(self.pin_names)
+        self.led_din_pin_no = 5
 
     def place(self, pcb):
         pcb.place_pro_micro_on_keyboard_grid(self._part)
 
-    def get_pin_name(self, pin_number):
-        return ProMicro.PIN_NAMES[pin_number - 1]
-
 
 class BluePill(Mcu):
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
         self._part = Part('keycad',
-                          'ProMicro',
+                          'BluePill_STM32F103C',
                           NETLIST,
-                          footprint='keycad:ArduinoProMicro')
+                          footprint='keycad:BluePill_STM32F103C')
         self._part.ref = 'U2'
         self._part.value = 'Blue Pill'
+        self.gpio_pin_nos = [
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24,
+            25, 26, 29, 30, 31, 32, 33, 34, 35, 36, 37
+        ]
+        self.pin_names = [
+            # 1-8
+            "VBAT",
+            "PC_13",
+            "PC_14",
+            "PC_15",
+            "PA_0",
+            "PA_1",
+            "PA_2",
+            "PA_3",
+
+            # 9-16
+            "PA_4",
+            "PA_5",
+            "PA_6",
+            "PA_7",
+            "PB_0",
+            "PB_1",
+            "PB_10",
+            "PB_11",
+
+            # 17-24
+            "RST",
+            "3V3",
+            "GND",
+            "GND",
+            "PB_12",
+            "PB_13",
+            "PB_14",
+            "PB_15",
+
+            # 25-32
+            "PA_8",
+            "PA_9",
+            "USB_DP",  # PA_12
+            "USB_DM",  # PA_11
+            "PA_12",
+            "PA_15",
+            "PB_3",
+            "PB_4",
+
+            # 33-40
+            "PB_5",
+            "PB_6",
+            "PB_7",
+            "PB_8",
+            "PB_9",
+            "VCC",
+            "GND",
+            "3V3"
+        ]
+
+        self.populate_pins(self.pin_names)
+
+        # TODO(miket): check which pin other STM32-based boards use
+        self.led_din_pin_no = 37
 
     def place(self, pcb):
         pcb.place_blue_pill_on_keyboard_grid(self._part)
@@ -238,10 +309,8 @@ class Schematic:
         self.__gnd += mcu.get_gnd_pins()
         self.__vcc += mcu.get_vcc_pins()
 
-        # TODO(miket): change to a method that allows asking for the
-        # next GPIO, and then this can be refactored away
         if self.__led_din_pin is not None:
-            self.__led_din_pin += mcu.get_led_din_pin()
+            self.__led_din_pin += mcu.claim_led_din_pin()
             self.__led_din_pin.net.name = "LED_DATA"
 
         for row in self.__key_matrix_rows:

@@ -21,6 +21,42 @@
                 "KICAD_SYMBOL_DIR": "${workspaceFolder}",
                 "KISYSMOD": "${workspaceFolder}",
             }
+        },
+        {
+            "name": "Generate 68keys with Pro Micro",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--add_pro_micro",
+                "--position_json_filename",
+                "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
+                "${workspaceFolder}/kle_layouts/68keys-io.json"
+            ],
+            "env": {
+                "KICAD_SYMBOL_DIR": "${workspaceFolder}",
+                "KISYSMOD": "${workspaceFolder}",
+            }
+        },
+        {
+            "name": "Generate 68keys with Blue Pill",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--add_blue_pill",
+                "--position_json_filename",
+                "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
+                "${workspaceFolder}/kle_layouts/68keys-io.json"
+            ],
+            "env": {
+                "KICAD_SYMBOL_DIR": "${workspaceFolder}",
+                "KISYSMOD": "${workspaceFolder}",
+            }
         }
     ]
 }
