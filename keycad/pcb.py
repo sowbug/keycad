@@ -101,7 +101,12 @@ class Pcb:
 
     def place_led_on_keyboard_grid(self, part, key):
         (x, y) = self.position_from_key(key)
-        x_offset, y_offset = (0, -self.__mx_key_width / 4)
+
+        # The number 3.772277228 is backed out from a spec placing an
+        # MX Cherry SMD LED 5.05mm above the switch center. I'm not aware
+        # of an equivalent spec for Kailh Choc switches. In that case
+        # we'll scale it linearly with the switch height. 
+        x_offset, y_offset = (0, -self.__mx_key_height / 3.772277228)
         self.place_component_on_keyboard_grid(part,
                                               x,
                                               y,
