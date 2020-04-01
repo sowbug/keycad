@@ -4,8 +4,9 @@ KC_TO_MM = 1000000
 
 
 class Pcb:
-    def __init__(self, mx_key_width):
+    def __init__(self, mx_key_width, mx_key_height):
         self.__mx_key_width = mx_key_width
+        self.__mx_key_height = mx_key_height
         self.__logical_key_width = 1
         self.__key_cursor_x = 0
         self.__key_cursor_y = 0
@@ -54,7 +55,7 @@ class Pcb:
 
     def cursor_carriage_return(self):
         self.__key_cursor_x = 0
-        self.__key_cursor_y += self.__mx_key_width
+        self.__key_cursor_y += self.__mx_key_height
 
     def _inject_component(self, part, x, y, angle, side):
         self.__kinjector_json[part.ref] = {
@@ -93,7 +94,7 @@ class Pcb:
         self.place_component_on_keyboard_grid(part,
                                               x,
                                               y,
-                                              180,
+                                              0,
                                               'top',
                                               x_offset=x_offset,
                                               y_offset=y_offset)
@@ -111,7 +112,7 @@ class Pcb:
 
     def place_diode_on_keyboard_grid(self, part, key):
         (x, y) = self.position_from_key(key)
-        x_offset, y_offset = (5, -self.__mx_key_width / 5)
+        x_offset, y_offset = (-5, -self.__mx_key_width / 5)
         self.place_component_on_keyboard_grid(part,
                                               x,
                                               y,

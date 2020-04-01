@@ -34,9 +34,23 @@ def main():
     arg_parser.add_argument("--add_blue_pill",
                             help="whether to add Blue Pill to board",
                             action="store_true")
+    arg_parser.add_argument(
+        "--use_pg1350",
+        help="whether to use Kailh Choc PG1350 instead of Cherry MX",
+        action="store_true")
+    arg_parser.add_argument(
+        "--no_hotswap",
+        help="whether to use soldered sockets instead of Kailh hotswap sockets",
+        action="store_true")
     args = arg_parser.parse_args()
 
-    pcb = Pcb(19.05)
+    if args.use_pg1350:
+        key_width = 18
+        key_height = 17
+    else:
+        key_width = 19.05
+        key_height = 19.05
+    pcb = Pcb(key_width, key_height)
 
     if args.position_json_filename is not None:
         pcb.read_positions(args.position_json_filename)
@@ -45,7 +59,7 @@ def main():
     else:
         out_dir = os.getcwd()
 
-    schematic = Schematic(pcb)
+    schematic = Schematic(pcb, not args.use_pg1350, not args.no_hotswap)
 
     parser = Parser()
     parser.load(args.kle_json_filename)

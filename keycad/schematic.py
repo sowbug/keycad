@@ -193,7 +193,7 @@ class BluePill(Mcu):
 
 
 class Schematic:
-    def __init__(self, pcb):
+    def __init__(self, pcb, is_mx=True, is_hotswap=True):
         self.__keysw_partno = 1
         self.__d_partno = 1
         self.__led_partno = 1
@@ -214,6 +214,9 @@ class Schematic:
         self.__legend_rows = []
         self.__legend_cols = []
 
+        self._is_mx = is_mx
+        self._is_hotswap = is_hotswap
+
     def get_key_value(self, key_labels):
         if len(key_labels) > 1:
             label = key_labels[1]
@@ -224,11 +227,16 @@ class Schematic:
         return label
 
     def create_keyswitch(self, key):
-        # keyboard_parts.lib is found at https://github.com/tmk/kicad_lib_tmk
-        part = Part('keycad',
-                    'KEYSW',
-                    NETLIST,
-                    footprint='keycad:Kailh_socket_MX')
+        if self._is_mx:
+            switch_type = "MX"
+        else:
+            switch_type = "PG1350"
+        if self._is_hotswap:
+            socket_type = "Kailh_socket"
+        else:
+            socket_type = "SW"
+        footprint = "keycad:%s_%s" % (socket_type, switch_type)
+        part = Part('keycad', 'KEYSW', NETLIST, footprint=footprint)
         part.ref = "K%d" % (self.__keysw_partno)
         part.value = self.get_key_value(key.labels)
         self.__keysw_partno += 1

@@ -2,6 +2,10 @@
 
 Generates KiCad PCBs for custom keyboards.
 
+## Directory layout
+
+`key count`/`hotswap`/`switch type`/`mcu type`/
+
 ## Installation
 
 * `sudo apt install kicad`  (or however you install KiCad on your system)
@@ -20,9 +24,11 @@ the keycad.pretty/ directory as a global footprint library.
 3. In the directory containing your file, execute `keycad my-keyboard.json`
 4. After a couple moments, KiCad should pop up with a PCB that implements your
    keyboard. Inspect it and make sure the parts are in the right place.
-5. Go have your PCB manufactured somewhere like [JLCPCB](https://jlcpcb.com/).
-6. TODO: Order the parts you need from the generated BOM. 
-7. TODO: when your PCB and parts arrive and you've assembled everything
+5. Route the board (include instructions how to use freerouting).
+6. Pour the fills.
+7. Go have your PCB manufactured somewhere like [JLCPCB](https://jlcpcb.com/).
+8. TODO: Order the parts you need from the generated BOM. 
+9. TODO: when your PCB and parts arrive and you've assembled everything
    following `guide.txt`, use `file.c` to customize
    [QMK](https://github.com/qmk/qmk_firmware/) for your keyboard.
 
