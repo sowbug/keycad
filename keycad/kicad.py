@@ -2,7 +2,7 @@ import os
 import pcbnew
 import subprocess
 
-KC_TO_MM = 1000000
+MM_TO_KC = 1000000
 
 
 def generate_kicad_pcb(netlist_filename, kinjector_filename, pcb_filename):
@@ -39,43 +39,46 @@ def draw_arc(board, cx, cy, sx, sy, a):
     ds.SetAngle(a * 10)
 
 
-def draw_outline(pcb_filename):
-    # TODO(miket): the PCB BB should be determined by keyboard grid * key width.
-    # For example, 68-key layout is 17 x 4.75 or 323.85 x 90.4875. Then any
-    # non-key components should fit in any empty spaces, or else explicitly
-    # take up a new area dedicated to them.
-    pcb = pcbnew.LoadBoard(pcb_filename)
-    pcb.ComputeBoundingBox(False)
-    bb = pcb.GetBoundingBox()
-    l, t, r, b = bb.GetLeft(), bb.GetTop(), bb.GetRight(), bb.GetBottom()
-    print("component bounding box is (%d %d) (%d %d)" % (l, t, r, b))
-    print("h/w mm (%0.2f %0.2f)" % ((r - l) / KC_TO_MM, (b - t) / KC_TO_MM))
+def draw_outline(pcb_filename,
+                 left_mm,
+                 top_mm,
+                 width_mm,
+                 height_mm,
+                 margin_mm=0,
+                 corner_radius_mm=3):
+    l = int(left_mm * MM_TO_KC)
+    t = int(top_mm * MM_TO_KC)
+    r = int(left_mm + width_mm) * MM_TO_KC
+    b = int(top_mm + height_mm) * MM_TO_KC
 
-    MARGIN = 0 * KC_TO_MM
-    CORNER_RADIUS = 3 * KC_TO_MM
-    POINTS = [
-        (l - MARGIN, t - MARGIN),
-        (r + MARGIN, t - MARGIN),
-        (r + MARGIN, b + MARGIN),
-        (l - MARGIN, b + MARGIN),
+    margin_kc = margin_mm * MM_TO_KC
+    corner_rad_kc = corner_radius_mm * MM_TO_KC
+    points = [
+        (l - margin_kc, t - margin_kc),
+        (r + margin_kc, t - margin_kc),
+        (r + margin_kc, b + margin_kc),
+        (l - margin_kc, b + margin_kc),
     ]
-    draw_segment(pcb, POINTS[0][0] + CORNER_RADIUS, POINTS[0][1],
-                 POINTS[1][0] - CORNER_RADIUS, POINTS[1][1])
-    draw_segment(pcb, POINTS[1][0], POINTS[1][1] + CORNER_RADIUS, POINTS[2][0],
-                 POINTS[2][1] - CORNER_RADIUS)
-    draw_segment(pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1],
-                 POINTS[3][0] + CORNER_RADIUS, POINTS[3][1])
-    draw_segment(pcb, POINTS[3][0], POINTS[3][1] - CORNER_RADIUS, POINTS[0][0],
-                 POINTS[0][1] + CORNER_RADIUS)
 
-    draw_arc(pcb, POINTS[0][0] + CORNER_RADIUS, POINTS[0][1] + CORNER_RADIUS,
-             POINTS[0][0], POINTS[0][1] + CORNER_RADIUS, 90)
-    draw_arc(pcb, POINTS[1][0] - CORNER_RADIUS, POINTS[1][1] + CORNER_RADIUS,
-             POINTS[1][0] - CORNER_RADIUS, POINTS[1][1], 90)
-    draw_arc(pcb, POINTS[2][0] - CORNER_RADIUS, POINTS[2][1] - CORNER_RADIUS,
-             POINTS[2][0], POINTS[2][1] - CORNER_RADIUS, 90)
-    draw_arc(pcb, POINTS[3][0] + CORNER_RADIUS, POINTS[3][1] - CORNER_RADIUS,
-             POINTS[3][0] + CORNER_RADIUS, POINTS[3][1], 90)
+    pcb = pcbnew.LoadBoard(pcb_filename)
+
+    draw_segment(pcb, points[0][0] + corner_rad_kc, points[0][1],
+                 points[1][0] - corner_rad_kc, points[1][1])
+    draw_segment(pcb, points[1][0], points[1][1] + corner_rad_kc, points[2][0],
+                 points[2][1] - corner_rad_kc)
+    draw_segment(pcb, points[2][0] - corner_rad_kc, points[2][1],
+                 points[3][0] + corner_rad_kc, points[3][1])
+    draw_segment(pcb, points[3][0], points[3][1] - corner_rad_kc, points[0][0],
+                 points[0][1] + corner_rad_kc)
+
+    draw_arc(pcb, points[0][0] + corner_rad_kc, points[0][1] + corner_rad_kc,
+             points[0][0], points[0][1] + corner_rad_kc, 90)
+    draw_arc(pcb, points[1][0] - corner_rad_kc, points[1][1] + corner_rad_kc,
+             points[1][0] - corner_rad_kc, points[1][1], 90)
+    draw_arc(pcb, points[2][0] - corner_rad_kc, points[2][1] - corner_rad_kc,
+             points[2][0], points[2][1] - corner_rad_kc, 90)
+    draw_arc(pcb, points[3][0] + corner_rad_kc, points[3][1] - corner_rad_kc,
+             points[3][0] + corner_rad_kc, points[3][1], 90)
 
     layertable = {}
 
@@ -93,21 +96,33 @@ def draw_outline(pcb_filename):
             powernets.append((name, "B.Cu"))
             break
 
-    for netname, layername in (powernets):
-        net = nets.find(netname).value()[1]
-        layer = layertable[layername]
-        newarea = pcb.InsertArea(
-            net.GetNet(), 0, layer, l, t, pcbnew.ZONE_EXPORT_VALUES
-        )  # picked random name because ZONE_HATCH_STYLE_DIAGONAL_EDGE was missing
+    if True:
+        for netname, layername in (powernets):
+            net = nets.find(netname).value()[1]
+            layer = layertable[layername]
+            # The number 2 is found in this code snippet:
+            #
+            # enum class ZONE_HATCH_STYLE
+            # {
+            #    NO_HATCH,
+            #    DIAGONAL_FULL,
+            #    DIAGONAL_EDGE
+            # };
+            # in the KiCad C++ source pcbnew/zone_settings.h.
+            #
+            # It seems that the version of the Python bindings
+            # on current versions of KiCad don't have this enum.
+            DIAGONAL_EDGE = 2
+            newarea = pcb.InsertArea(net.GetNet(), 0, layer, l, t,
+                                     DIAGONAL_EDGE)
+            newoutline = newarea.Outline()
+            newoutline.Append(l, b)
+            newoutline.Append(r, b)
+            newoutline.Append(r, t)
+            newarea.Hatch()
 
-        newoutline = newarea.Outline()
-        newoutline.Append(l, b)
-        newoutline.Append(r, b)
-        newoutline.Append(r, t)
-        newarea.Hatch()
-
-    filler = pcbnew.ZONE_FILLER(pcb)
-    zones = pcb.Zones()
-    filler.Fill(zones)
+        filler = pcbnew.ZONE_FILLER(pcb)
+        zones = pcb.Zones()
+        filler.Fill(zones)
 
     pcbnew.SaveBoard(pcb_filename, pcb)

@@ -372,6 +372,5 @@ class Schematic:
         self.__pcb.place_reset_switch_on_keyboard_grid(part)
         return part
 
-    def get_legend(self):
-        return "ROWS: %s\nCOLS: %s" % (" ".join(self.__legend_rows), " ".join(
-            self.__legend_cols))
+    def get_legend_dict(self):
+        return {"cols": self.__legend_cols, "rows": self.__legend_rows}

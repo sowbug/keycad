@@ -19,6 +19,10 @@ class Parser:
         self.__keys = []
         self.__cursor_x = 0
         self.__cursor_y = 0
+        self._board_left = 99999
+        self._board_top = 99999
+        self._board_right = 0
+        self._board_bottom = 0
         self.reset_row_parameters()
         self.reset_key_parameters()
 
@@ -39,6 +43,22 @@ class Parser:
     @property
     def keys(self):
         return self.__keys
+
+    @property
+    def board_left(self):
+        return self._board_left
+
+    @property
+    def board_top(self):
+        return self._board_top
+
+    @property
+    def board_right(self):
+        return self._board_right
+
+    @property
+    def board_bottom(self):
+        return self._board_bottom
 
     def _process_row_metadata(self, metadata):
         pass
@@ -64,6 +84,14 @@ class Parser:
                           height=self.__current_key_height,
                           is_homing=self.__current_key_is_homing)
         self.__keys.append(new_key)
+        if new_key.x < self._board_left:
+            self._board_left = new_key.x
+        if new_key.y < self._board_top:
+            self._board_top = new_key.y
+        if new_key.x + self.__current_key_width > self._board_right:
+            self._board_right = new_key.x + self.__current_key_width
+        if new_key.y + self.__current_key_height > self._board_bottom:
+            self._board_bottom = new_key.y + self.__current_key_height
 
     def _process_row(self, row):
         self.reset_row_parameters()

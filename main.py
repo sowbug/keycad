@@ -10,13 +10,14 @@ from skidl import generate_netlist
 from keycad.builder import BoardBuilder
 from keycad.kicad import draw_outline, generate_kicad_pcb
 from keycad.kle import Parser
+from keycad.manual import Manual
 from keycad.pcb import Pcb
 from keycad.schematic import Schematic
 
 PCB_FILENAME = "keycad.kicad_pcb"
 KINJECTOR_JSON_FILENAME = "keycad-kinjector.json"
 NETLIST_FILENAME = "keycad.net"
-
+USER_GUIDE_FILENAME = "your-keyboard-user-guide.md"
 
 def main():
     arg_parser = argparse.ArgumentParser(
@@ -44,6 +45,10 @@ def main():
         action="store_true")
     args = arg_parser.parse_args()
 
+    kbd_dict = {
+        "arguments": str(args),
+    }
+
     if args.use_pg1350:
         key_width = 18
         key_height = 17
@@ -51,6 +56,9 @@ def main():
         key_width = 19.05
         key_height = 19.05
     pcb = Pcb(key_width, key_height)
+
+    kbd_dict["keyswitch_width_mm"] = key_width
+    kbd_dict["keyswitch_height_mm"] = key_height
 
     if args.position_json_filename is not None:
         pcb.read_positions(args.position_json_filename)
@@ -67,8 +75,7 @@ def main():
     builder = BoardBuilder(parser, schematic)
     builder.build(add_pro_micro=args.add_pro_micro,
                   add_blue_pill=args.add_blue_pill)
-
-    print(schematic.get_legend())
+    kbd_dict["matrix_pins"] = schematic.get_legend_dict()
 
     with open(os.path.join(out_dir, NETLIST_FILENAME), "w") as f:
         generate_netlist(file_=f)
@@ -78,9 +85,18 @@ def main():
                        os.path.join(out_dir, KINJECTOR_JSON_FILENAME),
                        os.path.join(out_dir, PCB_FILENAME))
 
-    draw_outline(os.path.join(out_dir, PCB_FILENAME))
+    board_width = parser.board_right - parser.board_left
+    board_height = parser.board_bottom - parser.board_top
+    kbd_dict["pcb_width_mm"] = board_width
+    kbd_dict["pcb_height_mm"] = board_height
+    draw_outline(os.path.join(out_dir,
+                              PCB_FILENAME), -key_width / 2, -key_height / 2,
+                 board_width * key_width, board_height * key_height)
 
     os.unlink(os.path.join(out_dir, KINJECTOR_JSON_FILENAME))
+
+    manual = Manual(kbd_dict)
+    manual.generate(os.path.join(out_dir, USER_GUIDE_FILENAME))
 
     subprocess.call(["xdg-open", os.path.join(out_dir, PCB_FILENAME)])
 
