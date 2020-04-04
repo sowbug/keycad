@@ -16,7 +16,7 @@ setuptools.setup(
     package_data={
         "kle_layouts": ["*.json"],
     },
-    entry_points = {
+    entry_points={
         'console_scripts': ['keycad=keycad.keycad:main'],
     },
     classifiers=[
@@ -26,6 +26,6 @@ setuptools.setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        "skidl >= 0.0.29", "kinjector >= 0.0.6", "kinet2pcb >= 0.1.1"
+        "skidl >= 0.0.29", "kinjector >= 0.0.6", "kinet2pcb >= 0.1.1", "jinja2"
     ],
 )
