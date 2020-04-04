@@ -3,7 +3,9 @@
 *.log
 *.pyc
 .vscode/.ropeproject/objectdb
+__main___lib_sklib.py
 __pycache__/
+_autosave-keycad.kicad_pcb
 build/
 dist/
 fp-info-cache
@@ -20,7 +22,6 @@ keycad.pro
 keycad.ses
 keycad_lib_sklib.py
 main_lib_sklib.py
+output/
 ptvsd_launcher.net
 ptvsd_launcher_lib_sklib.py
-_autosave-keycad.kicad_pcb
-__main___lib_sklib.py
