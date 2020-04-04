@@ -33,6 +33,8 @@
                 "--add_pro_micro",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
+                "--output_prefix", "68-keys",
+                "--out_dir", "output/68/pro-micro",
                 "${workspaceFolder}/kle_layouts/68keys-io.json"
             ],
             "env": {
@@ -51,6 +53,8 @@
                 "--add_blue_pill",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
+                "--output_prefix", "68-keys",
+                "--out_dir", "output/68/blue-pill",
                 "${workspaceFolder}/kle_layouts/68keys-io.json"
             ],
             "env": {

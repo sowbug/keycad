@@ -14,10 +14,12 @@ from keycad.manual import Manual
 from keycad.pcb import Pcb
 from keycad.schematic import Schematic
 
-PCB_FILENAME = "keycad.kicad_pcb"
+PCB_FILENAME_SUFFIX = ".kicad_pcb"
+NETLIST_FILENAME_SUFFIX = ".net"
+USER_GUIDE_SUFFIX = "-user-guide.md"
+
 KINJECTOR_JSON_FILENAME = "keycad-kinjector.json"
-NETLIST_FILENAME = "keycad.net"
-USER_GUIDE_FILENAME = "your-keyboard-user-guide.md"
+
 
 def main():
     arg_parser = argparse.ArgumentParser(
@@ -27,8 +29,14 @@ def main():
     arg_parser.add_argument("kle_json_filename", help="KLE JSON filename")
     arg_parser.add_argument("--position_json_filename",
                             help="kinjector-format overrides of positions")
+    arg_parser.add_argument("--output_prefix",
+                            help="prefix for output filenames",
+                            nargs="?",
+                            const="my-keyboard")
     arg_parser.add_argument("--out_dir",
-                            help="directory to place output files")
+                            help="directory to place output files",
+                            nargs="?",
+                            const="output")
     arg_parser.add_argument("--add_pro_micro",
                             help="whether to add Pro Micro to board",
                             action="store_true")
@@ -64,8 +72,20 @@ def main():
         pcb.read_positions(args.position_json_filename)
     if args.out_dir is not None:
         out_dir = args.out_dir
+        os.makedirs(out_dir, exist_ok=True)
     else:
         out_dir = os.getcwd()
+
+    pcb_filename = os.path.join(out_dir,
+                                args.output_prefix + PCB_FILENAME_SUFFIX)
+    pcb_sandwich_bottom_filename = os.path.join(
+        out_dir, args.output_prefix + "-bottom" + PCB_FILENAME_SUFFIX)
+    pcb_sandwich_plate_filename = os.path.join(
+        out_dir, args.output_prefix + "-top" + PCB_FILENAME_SUFFIX)
+    netlist_filename = os.path.join(
+        out_dir, args.output_prefix + NETLIST_FILENAME_SUFFIX)
+    user_guide_filename = os.path.join(out_dir,
+                                       args.output_prefix + USER_GUIDE_SUFFIX)
 
     schematic = Schematic(pcb, not args.use_pg1350, not args.no_hotswap)
 
@@ -77,28 +97,43 @@ def main():
                   add_blue_pill=args.add_blue_pill)
     kbd_dict["matrix_pins"] = schematic.get_legend_dict()
 
-    with open(os.path.join(out_dir, NETLIST_FILENAME), "w") as f:
+    with open(netlist_filename, "w") as f:
         generate_netlist(file_=f)
 
     pcb.write_kinjector_file(os.path.join(out_dir, KINJECTOR_JSON_FILENAME))
-    generate_kicad_pcb(os.path.join(out_dir, NETLIST_FILENAME),
+    generate_kicad_pcb(netlist_filename,
                        os.path.join(out_dir, KINJECTOR_JSON_FILENAME),
-                       os.path.join(out_dir, PCB_FILENAME))
+                       pcb_filename)
 
     board_width = parser.board_right - parser.board_left
     board_height = parser.board_bottom - parser.board_top
     kbd_dict["pcb_width_mm"] = board_width
     kbd_dict["pcb_height_mm"] = board_height
-    draw_outline(os.path.join(out_dir,
-                              PCB_FILENAME), -key_width / 2, -key_height / 2,
+    draw_outline(pcb_filename, -key_width / 2, -key_height / 2,
                  board_width * key_width, board_height * key_height)
+    draw_outline(pcb_sandwich_bottom_filename,
+                 -key_width / 2,
+                 -key_height / 2,
+                 board_width * key_width,
+                 board_height * key_height,
+                 modify_existing=False,
+                 margin_mm=5,
+                 corner_radius_mm=5)
+    draw_outline(pcb_sandwich_plate_filename,
+                 -key_width / 2,
+                 -key_height / 2,
+                 board_width * key_width,
+                 board_height * key_height,
+                 modify_existing=False,
+                 margin_mm=5,
+                 corner_radius_mm=5)
 
     os.unlink(os.path.join(out_dir, KINJECTOR_JSON_FILENAME))
 
     manual = Manual(kbd_dict)
-    manual.generate(os.path.join(out_dir, USER_GUIDE_FILENAME))
+    manual.generate(user_guide_filename)
 
-    subprocess.call(["xdg-open", os.path.join(out_dir, PCB_FILENAME)])
+    subprocess.call(["xdg-open", pcb_filename])
 
 
 if __name__ == "__main__":

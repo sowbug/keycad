@@ -44,6 +44,7 @@ def draw_outline(pcb_filename,
                  top_mm,
                  width_mm,
                  height_mm,
+                 modify_existing=True,
                  margin_mm=0,
                  corner_radius_mm=3):
     l = int(left_mm * MM_TO_KC)
@@ -60,7 +61,10 @@ def draw_outline(pcb_filename,
         (l - margin_kc, b + margin_kc),
     ]
 
-    pcb = pcbnew.LoadBoard(pcb_filename)
+    if modify_existing:
+        pcb = pcbnew.LoadBoard(pcb_filename)
+    else:
+        pcb = pcbnew.BOARD()
 
     draw_segment(pcb, points[0][0] + corner_rad_kc, points[0][1],
                  points[1][0] - corner_rad_kc, points[1][1])
