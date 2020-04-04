@@ -13,6 +13,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--add_pro_micro",
+                "--output_prefix", "${fileBasenameNoExtension}",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.positions.json",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.json"

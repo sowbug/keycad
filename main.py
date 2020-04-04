@@ -31,12 +31,10 @@ def main():
                             help="kinjector-format overrides of positions")
     arg_parser.add_argument("--output_prefix",
                             help="prefix for output filenames",
-                            nargs="?",
-                            const="my-keyboard")
+                            default="my-keyboard")
     arg_parser.add_argument("--out_dir",
                             help="directory to place output files",
-                            nargs="?",
-                            const="output")
+                            default="output")
     arg_parser.add_argument("--add_pro_micro",
                             help="whether to add Pro Micro to board",
                             action="store_true")
@@ -54,7 +52,7 @@ def main():
     args = arg_parser.parse_args()
 
     kbd_dict = {
-        "arguments": str(args),
+        "args": str(args),
     }
 
     if args.use_pg1350:
