@@ -30,6 +30,11 @@ class Key:
     @property
     def is_homing(self):
         return self.__is_homing
-    
+
     def __str__(self):
         return "%s [%.2f %.2f]" % (self.__labels[0], self.x, self.y)
+
+    @property
+    def position(self):
+        return ((self.x + (self.width - 1) / 2,
+                 self.y + (self.height - 1) / 2))

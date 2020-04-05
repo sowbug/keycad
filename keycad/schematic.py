@@ -44,6 +44,7 @@ class Mcu:
         self.gnd_pin_nos = []
         self.led_din_pin_no = -1
         self.reset_pin_no = -1
+        self.usb_pin_nos = (-1, -1)
 
     def pin_count(self):
         return len(self.pin_names)
@@ -92,6 +93,13 @@ class Mcu:
 
     def get_reset_pin(self):
         return self._part[self.get_reset_pin_no()]
+
+    def get_usb_pin_nos(self):
+        return self.usb_pin_nos
+
+    def get_usb_pins(self):
+        dp_pin_no, dm_pin_no = self.get_usb_pin_nos()
+        return self._part[dp_pin_no], self._part[dm_pin_no]
 
 
 class ProMicro(Mcu):
@@ -187,6 +195,8 @@ class BluePill(Mcu):
 
         # TODO(miket): check which pin other STM32-based boards use
         self.led_din_pin_no = 37
+
+        self.usb_pin_nos = (27, 28)
 
     def place(self, pcb):
         pcb.place_blue_pill_on_keyboard_grid(self._part)
@@ -349,6 +359,19 @@ class Schematic:
         reset[1] += mcu.get_reset_pin()
         reset[1].net.name = "RST"
 
+    def connect_usb_c_connector(self, conn, mcu):
+        self.__gnd += conn["A1"]
+        self.__vcc += conn["A4"]
+
+        # TODO(miket): Per ST AN4775, 22-ohm resistors aren't necessary.
+        usb_dp, usb_dm = mcu.get_usb_pins()
+        conn["A6"] += conn["B6"]
+        conn["A6"] += usb_dp
+        conn["A6"].net.name = "USB_DP"
+        conn["A7"] += conn["B7"]
+        conn["A7"] += usb_dm
+        conn["A7"].net.name = "USB_DM"
+
     def set_next_dout_pin(self, next_dout_pin):
         self.__next_dout_pin = next_dout_pin
 
@@ -370,6 +393,18 @@ class Schematic:
         part.ref = 'SW1'
         part.value = 'SKQGAKE010'
         self.__pcb.place_reset_switch_on_keyboard_grid(part)
+        return part
+
+    def create_usb_c_connector(self):
+        # TODO(miket): tie CC1/CC2 to GND via two 5.1k resistors.
+
+        part = Part('keycad',
+                    'USB_C_Receptacle_USB2.0',
+                    NETLIST,
+                    footprint='keycad:USB_C_Receptacle_HRO_TYPE-C-31-M-14')
+        part.ref = 'J1'
+        part.value = 'TYPE-C-31-M-14'
+        self.__pcb.place_usb_c_connector_on_keyboard_grid(part)
         return part
 
     def get_legend_dict(self):

@@ -85,11 +85,8 @@ class Pcb:
          side) = self.maybe_override_position(part, x, y, angle, side)
         self._inject_component(part, x, y, angle, side)
 
-    def position_from_key(self, key):
-        return (key.x + (key.width - 1) / 2, key.y + (key.height - 1) / 2)
-
     def place_keyswitch_on_keyboard_grid(self, part, key):
-        (x, y) = self.position_from_key(key)
+        (x, y) = key.position
         x_offset, y_offset = (0, 0)
         self.place_component_on_keyboard_grid(part,
                                               x,
@@ -100,7 +97,7 @@ class Pcb:
                                               y_offset=y_offset)
 
     def place_led_on_keyboard_grid(self, part, key):
-        (x, y) = self.position_from_key(key)
+        (x, y) = key.position
 
         # The number 3.772277228 is backed out from a spec placing an
         # MX Cherry SMD LED 5.05mm above the switch center. I'm not aware
@@ -116,7 +113,7 @@ class Pcb:
                                               y_offset=y_offset)
 
     def place_diode_on_keyboard_grid(self, part, key):
-        (x, y) = self.position_from_key(key)
+        (x, y) = key.position
         x_offset, y_offset = (-5, -self.__mx_key_width / 5)
         self.place_component_on_keyboard_grid(part,
                                               x,
@@ -134,6 +131,9 @@ class Pcb:
 
     def place_reset_switch_on_keyboard_grid(self, part):
         self.place_component_on_keyboard_grid(part, 10, 4, 180, 'bottom')
+
+    def place_usb_c_connector_on_keyboard_grid(self, part):
+        self.place_component_on_keyboard_grid(part, 10, 0, 180, 'bottom')
 
     def write_kinjector_file(self, filename):
         with open(filename, "w") as f:
