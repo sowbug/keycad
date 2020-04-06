@@ -136,7 +136,7 @@ class BluePill(Mcu):
         self._part.ref = 'U2'
         self._part.value = 'Blue Pill'
         self.gpio_pin_nos = [
-            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24,
+            3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24,
             25, 26, 29, 30, 31, 32, 33, 34, 35, 36, 37
         ]
         self.pin_names = [
@@ -339,13 +339,6 @@ class Schematic:
             if len(col) == 0:
                 self.__key_matrix_cols.remove(col)
 
-        if False and len(self.__key_matrix_rows) + len(
-                self.__key_matrix_cols) > mcu.gpio_count():
-            print(
-                "ERROR: need pins to connect %d rows and %d cols but have only %d GPIOs"
-                % (len(self.__key_matrix_rows), len(
-                    self.__key_matrix_cols), mcu.gpio_count()))
-            sys.exit(1)
         for row in self.__key_matrix_rows:
             pin_no, pin_net = mcu.claim_next_gpio()
             self.__legend_rows.append(mcu.get_pin_name(pin_no))
@@ -375,8 +368,10 @@ class Schematic:
 
         # CC1 and CC2
         conn["A5"] += r1[1]
+        conn["A5"].net.name = "CC1"
         r1[2] += self.__gnd
         conn["B5"] += r2[1]
+        conn["B5"].net.name = "CC2"
         r2[2] += self.__gnd
 
     def set_next_dout_pin(self, next_dout_pin):
