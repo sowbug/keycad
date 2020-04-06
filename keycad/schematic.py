@@ -206,6 +206,7 @@ class Schematic:
     def __init__(self, pcb, is_mx=True, is_hotswap=True):
         self.__keysw_partno = 1
         self.__d_partno = 1
+        self.__r_partno = 1
         self.__led_partno = 1
         self.__key_matrix_rows = []
         self.__key_matrix_cols = []
@@ -359,7 +360,7 @@ class Schematic:
         reset[1] += mcu.get_reset_pin()
         reset[1].net.name = "RST"
 
-    def connect_usb_c_connector(self, conn, mcu):
+    def connect_usb_c_connector(self, conn, mcu, r1, r2):
         self.__gnd += conn["A1"]
         self.__vcc += conn["A4"]
 
@@ -371,6 +372,12 @@ class Schematic:
         conn["A7"] += conn["B7"]
         conn["A7"] += usb_dm
         conn["A7"].net.name = "USB_DM"
+
+        # CC1 and CC2
+        conn["A5"] += r1[1]
+        r1[2] += self.__gnd
+        conn["B5"] += r2[1]
+        r2[2] += self.__gnd
 
     def set_next_dout_pin(self, next_dout_pin):
         self.__next_dout_pin = next_dout_pin
@@ -396,8 +403,6 @@ class Schematic:
         return part
 
     def create_usb_c_connector(self):
-        # TODO(miket): tie CC1/CC2 to GND via two 5.1k resistors.
-
         part = Part('keycad',
                     'USB_C_Receptacle_USB2.0',
                     NETLIST,
@@ -405,6 +410,14 @@ class Schematic:
         part.ref = 'J1'
         part.value = 'TYPE-C-31-M-14'
         self.__pcb.place_usb_c_connector_on_keyboard_grid(part)
+        return part
+
+    def create_resistor(self, value):
+        part = Part('keycad', 'R', NETLIST, footprint='keycad:R_0805_2012Metric')
+        part.ref = "R%d" % (self.__r_partno)
+        part.value = value
+        self.__r_partno += 1
+        self.__pcb.place_resistor_on_keyboard_grid(part)
         return part
 
     def get_legend_dict(self):

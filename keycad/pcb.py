@@ -135,6 +135,9 @@ class Pcb:
     def place_usb_c_connector_on_keyboard_grid(self, part):
         self.place_component_on_keyboard_grid(part, 10, 0, 180, 'bottom')
 
+    def place_resistor_on_keyboard_grid(self, part):
+        self.place_component_on_keyboard_grid(part, 14, -5, 0, 'bottom')
+
     def write_kinjector_file(self, filename):
         with open(filename, "w") as f:
             f.write(
