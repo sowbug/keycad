@@ -23,6 +23,9 @@ class Parser:
         self._board_top = 99999
         self._board_right = 0
         self._board_bottom = 0
+        self._max_col_count = 0
+        self._col_count = 0
+        self._row_count = 0
         self.reset_row_parameters()
         self.reset_key_parameters()
 
@@ -39,6 +42,14 @@ class Parser:
     @property
     def key_count(self):
         return len(self.keys)
+
+    @property
+    def row_count(self):
+        return self._row_count
+
+    @property
+    def max_col_count(self):
+        return self._max_col_count
 
     @property
     def keys(self):
@@ -96,6 +107,8 @@ class Parser:
     def _process_row(self, row):
         self.reset_row_parameters()
         self.__cursor_x = 0
+        self._row_count += 1
+        self._col_count = 0
         for key in row:
             if isinstance(key, dict):
                 self._process_key_metadata(key)
@@ -103,6 +116,9 @@ class Parser:
                 self._process_key(key)
                 self.__cursor_x += (self.__current_key_width +
                                     self.__current_key_x_padding)
+                self._col_count += 1
+                if self._col_count > self._max_col_count:
+                    self._max_col_count = self._col_count
                 self.reset_key_parameters()
 
     def handle_dict(self, kle_dict):

@@ -118,7 +118,7 @@ class Pcb:
         self.place_component_on_keyboard_grid(part,
                                               x,
                                               y,
-                                              90,
+                                              270,
                                               'bottom',
                                               x_offset=x_offset,
                                               y_offset=y_offset)

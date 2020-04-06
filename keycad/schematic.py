@@ -46,6 +46,7 @@ class Mcu:
         self.reset_pin_no = -1
         self.usb_pin_nos = (-1, -1)
 
+    @property
     def pin_count(self):
         return len(self.pin_names)
 
@@ -53,7 +54,7 @@ class Mcu:
         return self.pin_names[pin_no - 1]
 
     def populate_pins(self, pin_names):
-        for pin_no in range(1, self.pin_count()):
+        for pin_no in range(1, self.pin_count):
             name = self.get_pin_name(pin_no)
             if name == "GND":
                 self.gnd_pin_nos.append(pin_no)
@@ -74,6 +75,7 @@ class Mcu:
             pin_nos.append(self._part[no])
         return tuple(pin_nos)
 
+    @property
     def gpio_count(self):
         return len(self.gpio_pin_nos)
 
@@ -142,7 +144,7 @@ class BluePill(Mcu):
         self.pin_names = [
             # 1-8
             "VBAT",
-            "LED1",     # PC_13
+            "LED1",  # PC_13
             "PC_14",
             "PC_15",
             "PA_0",
@@ -228,6 +230,8 @@ class Schematic:
         self._is_mx = is_mx
         self._is_hotswap = is_hotswap
 
+        self._prior_y = -1
+
     def get_key_value(self, key_labels):
         if len(key_labels) > 1:
             label = key_labels[1]
@@ -293,23 +297,31 @@ class Schematic:
         return part
 
     def connect_to_matrix(self, pin_1, pin_2):
-        self.__key_matrix_rows[self.__key_matrix_x] += pin_1
-        self.__key_matrix_cols[self.__key_matrix_y] += pin_2
-
-        # TODO(miket): for now we naively assume that keys are connected
-        # left to right, top to bottom. Eventually we should replace this
-        # with something that fits the actual board layout.
+        self.__key_matrix_cols[self.__key_matrix_x] += pin_1
+        self.__key_matrix_rows[self.__key_matrix_y] += pin_2
         self.__key_matrix_x += 1
-        if self.__key_matrix_x >= len(self.__key_matrix_cols):
-            self.__key_matrix_x = 0
-            self.__key_matrix_y += 1
+
+    def advance_matrix_row(self):
+        if self._conserve_cols:
+            return
+        self.__key_matrix_x = 0
+        self.__key_matrix_y += 1
 
     def connect_keyswitch_and_diode(self, key, keysw_part, diode_part):
         net = Net("%s_%s" % (keysw_part.ref, diode_part.ref))
         net += keysw_part[2], diode_part[2]
-        self.connect_to_matrix(diode_part[1], keysw_part[1])
+
+        # COL2ROW means the connection goes COL_ to switch to diode anode
+        # to diode cathode to ROW_. See
+        # https://github.com/qmk/qmk_firmware/blob/master/docs/config_options.md
+        self.connect_to_matrix(keysw_part[1], diode_part[1])
 
     def add_key(self, key):
+        if key.y != self._prior_y:
+            if self._prior_y != -1:
+                self.advance_matrix_row()
+            self._prior_y = key.y
+
         keysw_part = self.create_keyswitch(key)
         d_part = self.create_diode(key)
         self.connect_keyswitch_and_diode(key, keysw_part, d_part)
@@ -317,12 +329,24 @@ class Schematic:
         led_part = self.create_key_led(key)
         self.connect_per_key_led(led_part)
 
-    def create_matrix_nets(self):
-        # TODO(miket): calculate right number
-        for y in range(0, 9):
-            self.__key_matrix_rows.append(Net("ROW_%d" % y))
-        for x in range(0, 9):
-            self.__key_matrix_cols.append(Net("COL_%d" % x))
+    def create_matrix_nets(self, key_count, key_row_count, key_col_count,
+                           gpio_count):
+        if key_row_count + key_col_count <= gpio_count:
+            row_count = key_row_count
+            col_count = key_col_count
+            self._conserve_cols = False
+        else:
+            import math
+            square_matrix_size = math.ceil(math.sqrt(key_count))
+            if square_matrix_size * 2 >= gpio_count:
+                raise OverflowError("not enough GPIOs for this keyboard")
+            row_count = square_matrix_size
+            col_count = square_matrix_size
+            self._conserve_cols = True
+        for y in range(0, row_count):
+            self.__key_matrix_rows.append(Net("ROW_%d" % (y + 1)))
+        for x in range(0, col_count):
+            self.__key_matrix_cols.append(Net("COL_%d" % (x + 1)))
 
     def connect_mcu(self, mcu):
         self.__gnd += mcu.get_gnd_pins()
@@ -354,8 +378,8 @@ class Schematic:
         reset[1].net.name = "RST"
 
     def connect_usb_c_connector(self, conn, mcu, r1, r2):
-        self.__gnd += conn["A1"]
-        self.__vcc += conn["A4"]
+        self.__gnd += conn["A1"], conn["A12"], conn["B1"], conn["B12"]
+        self.__vcc += conn["A4"], conn["A9"], conn["B4"], conn["B9"]
 
         # TODO(miket): Per ST AN4775, 22-ohm resistors aren't necessary.
         usb_dp, usb_dm = mcu.get_usb_pins()
@@ -408,7 +432,10 @@ class Schematic:
         return part
 
     def create_resistor(self, value):
-        part = Part('keycad', 'R', NETLIST, footprint='keycad:R_0805_2012Metric')
+        part = Part('keycad',
+                    'R',
+                    NETLIST,
+                    footprint='keycad:R_0805_2012Metric')
         part.ref = "R%d" % (self.__r_partno)
         part.value = value
         self.__r_partno += 1
