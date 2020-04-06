@@ -12,7 +12,7 @@ class Pcb:
         self.__key_cursor_y = 0
         self._reset_key_attributes()
 
-        self.__kinjector_json = {}
+        self.__kinjector_json = {"board": {"modules": {}}}
 
     @property
     def kinjector_dict(self):
@@ -102,7 +102,7 @@ class Pcb:
         # The number 3.772277228 is backed out from a spec placing an
         # MX Cherry SMD LED 5.05mm above the switch center. I'm not aware
         # of an equivalent spec for Kailh Choc switches. In that case
-        # we'll scale it linearly with the switch height. 
+        # we'll scale it linearly with the switch height.
         x_offset, y_offset = (0, -self.__mx_key_height / 3.772277228)
         self.place_component_on_keyboard_grid(part,
                                               x,

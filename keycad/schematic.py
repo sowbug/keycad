@@ -142,7 +142,7 @@ class BluePill(Mcu):
         self.pin_names = [
             # 1-8
             "VBAT",
-            "PC_13",
+            "LED1",     # PC_13
             "PC_14",
             "PC_15",
             "PA_0",
@@ -173,9 +173,9 @@ class BluePill(Mcu):
             # 25-32
             "PA_8",
             "PA_9",
-            "USB_DP",  # PA_12
+            "PA_10",
             "USB_DM",  # PA_11
-            "PA_12",
+            "USB_DP",  # PA_12
             "PA_15",
             "PB_3",
             "PB_4",
@@ -196,7 +196,7 @@ class BluePill(Mcu):
         # TODO(miket): check which pin other STM32-based boards use
         self.led_din_pin_no = 37
 
-        self.usb_pin_nos = (27, 28)
+        self.usb_pin_nos = (29, 28)
 
     def place(self, pcb):
         pcb.place_blue_pill_on_keyboard_grid(self._part)
