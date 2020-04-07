@@ -27,7 +27,49 @@ Key switch spacing is {{ keyswitch_width_mm }}mm by {{ keyswitch_height_mm }}mm.
 // COL2ROW or ROW2COL
 #define DIODE_DIRECTION COL2ROW
 ```
+---
+```
+// keyboard.h
 
+#pragma once
+
+#include "quantum.h"
+
+#define LAYOUT_default ( {% for key in kle.keys %}{{ key.matrix_identifier }}{% if loop.last %}{% else %}, {% endif %}{% endfor %}) \
+{ \{% for row in key_matrix_keys %}
+    { {% for key in row %}{% if key %}{{ key.matrix_identifier }}{% else %}KC_NO{% endif %}{% if loop.last %}{% else %}, {% endif %}{% endfor %} } \{% endfor %}
+}
+
+#define LAYOUT LAYOUT_default
+```
+---
+```
+// keyboard.c
+
+#include "keyboard.h"
+
+void matrix_init_kb(void) {
+	// put your keyboard start-up code here
+	// runs once when the firmware starts up
+
+	matrix_init_user();
+}
+```
+---
+```
+// keymaps/default/keymap.c
+
+#include QMK_KEYBOARD_H
+
+#define _MAIN 0
+
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+  [_MAIN] = LAYOUT(
+    {% for key in kle.keys %}{{ key.qmk_keycode }}{% if loop.last %}{% else %}, {% endif %}{% endfor %}
+  )
+};
+
+```
 ## Debugging
 
 `{{ args }}`

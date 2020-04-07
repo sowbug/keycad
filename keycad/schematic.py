@@ -4,35 +4,6 @@ from skidl import NETLIST, Net, Part
 
 from keycad import key
 
-# KiCad explodes with raw quote
-# freerouting.jar explodes with raw backtick
-SYMBOL_TO_ALNUM = {
-    "'": 'QUOT',
-    "`": 'GRV',
-    "↑": 'UP',
-    "↓": 'DOWN',
-    "←": 'LEFT',
-    "→": 'RGHT',
-    "": 'SPC',
-    "|": 'BAR',
-    "!": 'EXCL',
-    "@": 'AT',
-    "#": 'HASH',
-    "$": 'DLR',
-    "%": 'PCT',
-    "^": 'CRT',
-    "&": 'AMP',
-    "*": 'AST',
-    "(": 'LPRN',
-    ")": 'RPRN',
-    "-": 'DASH',
-    "=": 'EQU',
-    "Caps Lock": 'CAPS',
-    "Shift": 'SHFT',
-    "Backspace": "BSPC",
-    "Enter": "ENT"
-}
-
 
 class Mcu:
     def __init__(self):
@@ -212,6 +183,7 @@ class Schematic:
         self.__led_partno = 1
         self.__key_matrix_rows = []
         self.__key_matrix_cols = []
+        self.__key_matrix_keys = None
 
         self.__pcb = pcb
 
@@ -232,14 +204,9 @@ class Schematic:
 
         self._prior_y = -1
 
-    def get_key_value(self, key_labels):
-        if len(key_labels) > 1:
-            label = key_labels[1]
-        else:
-            label = key_labels[0]
-        if label in SYMBOL_TO_ALNUM:
-            return SYMBOL_TO_ALNUM[label]
-        return label
+    @property
+    def key_matrix_keys(self):
+        return self.__key_matrix_keys
 
     def create_keyswitch(self, key):
         if self._is_mx:
@@ -253,7 +220,7 @@ class Schematic:
         footprint = "keycad:%s_%s" % (socket_type, switch_type)
         part = Part('keycad', 'KEYSW', NETLIST, footprint=footprint)
         part.ref = "K%d" % (self.__keysw_partno)
-        part.value = self.get_key_value(key.labels)
+        part.value = key.printable_label
         self.__keysw_partno += 1
         self.__pcb.place_keyswitch_on_keyboard_grid(part, key)
         return part
@@ -307,6 +274,11 @@ class Schematic:
         self.__key_matrix_x = 0
         self.__key_matrix_y += 1
 
+    def assign_matrix_location_to_key(self, key):
+        key.matrix_col = self.__key_matrix_x
+        key.matrix_row = self.__key_matrix_y
+        self.__key_matrix_keys[self.__key_matrix_y][self.__key_matrix_x] = key
+
     def connect_keyswitch_and_diode(self, key, keysw_part, diode_part):
         net = Net("%s_%s" % (keysw_part.ref, diode_part.ref))
         net += keysw_part[2], diode_part[2]
@@ -314,6 +286,7 @@ class Schematic:
         # COL2ROW means the connection goes COL_ to switch to diode anode
         # to diode cathode to ROW_. See
         # https://github.com/qmk/qmk_firmware/blob/master/docs/config_options.md
+        self.assign_matrix_location_to_key(key)
         self.connect_to_matrix(keysw_part[1], diode_part[1])
 
     def add_key(self, key):
@@ -347,6 +320,7 @@ class Schematic:
             self.__key_matrix_rows.append(Net("ROW_%d" % (y + 1)))
         for x in range(0, col_count):
             self.__key_matrix_cols.append(Net("COL_%d" % (x + 1)))
+        self.__key_matrix_keys = [[None] * col_count for i in range(row_count)]
 
     def connect_mcu(self, mcu):
         self.__gnd += mcu.get_gnd_pins()

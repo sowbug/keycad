@@ -94,6 +94,8 @@ def main():
     builder.build(add_pro_micro=args.add_pro_micro,
                   add_blue_pill=args.add_blue_pill)
     kbd_dict["matrix_pins"] = schematic.get_legend_dict()
+    kbd_dict["kle"] = parser
+    kbd_dict["key_matrix_keys"] = schematic.key_matrix_keys
 
     with open(netlist_filename, "w") as f:
         generate_netlist(file_=f)

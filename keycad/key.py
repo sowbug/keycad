@@ -1,3 +1,43 @@
+# KiCad explodes with raw quote
+# freerouting.jar explodes with raw backtick
+SYMBOL_TO_ALNUM = {
+    "'": 'QUOT',
+    "`": 'GRV',
+    "↑": 'UP',
+    "↓": 'DOWN',
+    "←": 'LEFT',
+    "→": 'RGHT',
+    "": 'SPC',
+    "|": 'BAR',
+    "!": 'EXCL',
+    "@": 'AT',
+    "#": 'HASH',
+    "$": 'DLR',
+    "%": 'PCT',
+    "^": 'CRT',
+    "&": 'AMP',
+    "*": 'AST',
+    "(": 'LPRN',
+    ")": 'RPRN',
+    "-": 'MINS',
+    "=": 'EQL',
+    "Caps Lock": 'CAPS',
+    "Shift": 'SHFT',
+    "Backspace": "BSPC",
+    "Enter": "ENT",
+    "[": "LBRC",
+    "]": "RBRC",
+    "Esc": "ESC",
+    "\\": "BSLS",
+    ";": "SCLN",
+    ",": "COMM",
+    ".": "DOT",
+    "/": "SLSH",
+    "CTRL": "LCTRL",
+    "WIN": "LGUI"
+}
+
+
 class Key:
     def __init__(self, x, y, text='none', width=1, height=1, is_homing=False):
         self.__labels = text.split("\n")
@@ -6,6 +46,8 @@ class Key:
         self.__width = width
         self.__height = height
         self.__is_homing = is_homing
+        self.__matrix_row = -1
+        self.__matrix_col = -1
 
     @property
     def labels(self):
@@ -38,3 +80,38 @@ class Key:
     def position(self):
         return ((self.x + (self.width - 1) / 2,
                  self.y + (self.height - 1) / 2))
+
+    @property
+    def matrix_row(self):
+        return self.__matrix_row
+
+    @property
+    def matrix_col(self):
+        return self.__matrix_col
+
+    @property
+    def matrix_identifier(self):
+        return "%s%d" % (chr(ord('A') + self.matrix_row), self.matrix_col)
+
+    @matrix_row.setter
+    def matrix_row(self, row):
+        self.__matrix_row = row
+
+    @matrix_col.setter
+    def matrix_col(self, col):
+        self.__matrix_col = col
+
+    @property
+    def qmk_keycode(self):
+        label = self.printable_label.upper()
+        return "KC_%s" % (label)
+
+    @property
+    def printable_label(self):
+        if len(self.__labels) > 1:
+            label = self.__labels[1]
+        else:
+            label = self.__labels[0]
+        if label in SYMBOL_TO_ALNUM:
+            return SYMBOL_TO_ALNUM[label]
+        return label
