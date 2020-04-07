@@ -107,8 +107,21 @@ def main():
     board_height = parser.board_bottom - parser.board_top
     kbd_dict["pcb_width_mm"] = board_width
     kbd_dict["pcb_height_mm"] = board_height
-    draw_outline(pcb_filename, -key_width / 2, -key_height / 2,
-                 board_width * key_width, board_height * key_height)
+
+    if args.add_blue_pill:
+        # TODO(miket): this is a horrible hack.
+        usb_cutout_position = 10 * key_width
+        usb_cutout_width = 4.7 * 2
+    else:
+        usb_cutout_position = -1
+        usb_cutout_width = -1
+    draw_outline(pcb_filename,
+                 -key_width / 2,
+                 -key_height / 2,
+                 board_width * key_width,
+                 board_height * key_height,
+                 usb_cutout_position=usb_cutout_position,
+                 usb_cutout_width=usb_cutout_width)
     draw_outline(pcb_sandwich_bottom_filename,
                  -key_width / 2,
                  -key_height / 2,
