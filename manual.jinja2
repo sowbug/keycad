@@ -7,6 +7,10 @@ Key switch spacing is {{ keyswitch_width_mm }}mm by {{ keyswitch_height_mm }}mm.
 ```
 // config.h
 
+#pragma once
+
+#include "config_common.h"
+
 // USB Device descriptor parameter
 #define VENDOR_ID       0xFEED
 #define PRODUCT_ID      0x8888
@@ -35,9 +39,9 @@ Key switch spacing is {{ keyswitch_width_mm }}mm by {{ keyswitch_height_mm }}mm.
 
 #include "quantum.h"
 
-#define LAYOUT_default ( {% for key in kle.keys %}{{ key.matrix_identifier }}{% if loop.last %}{% else %}, {% endif %}{% endfor %}) \
+#define LAYOUT_default( {% for key in kle.keys %}{{ key.matrix_identifier }}{% if loop.last %}{% else %}, {% endif %}{% endfor %}) \
 { \{% for row in key_matrix_keys %}
-    { {% for key in row %}{% if key %}{{ key.matrix_identifier }}{% else %}KC_NO{% endif %}{% if loop.last %}{% else %}, {% endif %}{% endfor %} } \{% endfor %}
+    { {% for key in row %}{% if key %}{{ key.matrix_identifier }}{% else %}KC_NO{% endif %}{% if loop.last %}{% else %}, {% endif %}{% endfor %} }{% if loop.last %}{% else %},{% endif %} \{% endfor %}
 }
 
 #define LAYOUT LAYOUT_default
