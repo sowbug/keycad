@@ -125,6 +125,9 @@ def draw_keepout(pcb_filename,
     outline.Append(r, b)
     outline.Append(l, b)
 
+    # Thanks
+    # https://github.com/NilujePerchut/kicad_scripts/blob/master/teardrops/td.py
+
     pcbnew.SaveBoard(pcb_filename, pcb)
 
 def pour_fills(pcb_filename):
