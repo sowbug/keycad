@@ -8,7 +8,7 @@ import subprocess
 from skidl import generate_netlist
 
 from keycad.builder import BoardBuilder
-from keycad.kicad import draw_outline, generate_kicad_pcb
+from keycad.kicad import draw_outline, draw_keepout, generate_kicad_pcb
 from keycad.kle import Parser
 from keycad.manual import Manual
 from keycad.pcb import Pcb
@@ -122,6 +122,8 @@ def main():
                  board_height * key_height,
                  usb_cutout_position=usb_cutout_position,
                  usb_cutout_width=usb_cutout_width)
+    draw_keepout(pcb_filename, usb_cutout_position - usb_cutout_width / 2, -10,
+                 usb_cutout_width, 7)
     draw_outline(pcb_sandwich_bottom_filename,
                  -key_width / 2,
                  -key_height / 2,

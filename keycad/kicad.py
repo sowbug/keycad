@@ -2,6 +2,8 @@ import os
 import pcbnew
 import subprocess
 
+Point = pcbnew.wxPoint
+
 MM_TO_KC = 1000000
 
 
@@ -96,6 +98,41 @@ def draw_outline(pcb_filename,
     draw_arc(pcb, points[3][0] + corner_rad_kc, points[3][1] - corner_rad_kc,
              points[3][0] + corner_rad_kc, points[3][1], 90)
 
+    pcbnew.SaveBoard(pcb_filename, pcb)
+
+def draw_keepout(pcb_filename,
+                 left_mm,
+                 top_mm,
+                 width_mm,
+                 height_mm):
+    l = int(left_mm * MM_TO_KC)
+    t = int(top_mm * MM_TO_KC)
+    r = int(left_mm + width_mm) * MM_TO_KC
+    b = int(top_mm + height_mm) * MM_TO_KC
+
+    pcb = pcbnew.LoadBoard(pcb_filename)
+    layer = pcbnew.F_Cu
+    # See below for where the 2 comes from
+    area = pcb.InsertArea(-1, 0xffff, layer, 0, 0, 2)
+    area.SetIsKeepout(True)
+    area.SetDoNotAllowTracks(True)
+    area.SetDoNotAllowVias(True)
+    area.SetDoNotAllowCopperPour(True)
+    outline = area.Outline()
+    outline.NewOutline()
+    outline.Append(l, t)
+    outline.Append(r, t)
+    outline.Append(r, b)
+    outline.Append(l, b)
+
+    pcbnew.SaveBoard(pcb_filename, pcb)
+
+def pour_fills(pcb_filename):
+    pcb = pcbnew.LoadBoard(pcb_filename)
+    pcb.ComputeBoundingBox(False)
+    bb = pcb.GetBoundingBox()
+    l, t, r, b = bb.GetLeft(), bb.GetTop(), bb.GetRight(), bb.GetBottom()
+
     layertable = {}
 
     numlayers = pcbnew.PCB_LAYER_ID_COUNT
@@ -112,30 +149,29 @@ def draw_outline(pcb_filename,
             powernets.append((name, "B.Cu"))
             break
 
-    if True:
-        for netname, layername in (powernets):
-            net = nets.find(netname).value()[1]
-            layer = layertable[layername]
-            # The number 2 is found in this code snippet:
-            #
-            # enum class ZONE_HATCH_STYLE
-            # {
-            #    NO_HATCH,
-            #    DIAGONAL_FULL,
-            #    DIAGONAL_EDGE
-            # };
-            # in the KiCad C++ source pcbnew/zone_settings.h.
-            #
-            # It seems that the version of the Python bindings
-            # on current versions of KiCad don't have this enum.
-            DIAGONAL_EDGE = 2
-            newarea = pcb.InsertArea(net.GetNet(), 0, layer, l, t,
-                                     DIAGONAL_EDGE)
-            newoutline = newarea.Outline()
-            newoutline.Append(l, b)
-            newoutline.Append(r, b)
-            newoutline.Append(r, t)
-            newarea.Hatch()
+    for netname, layername in (powernets):
+        net = nets.find(netname).value()[1]
+        layer = layertable[layername]
+        # The number 2 is found in this code snippet:
+        #
+        # enum class ZONE_HATCH_STYLE
+        # {
+        #    NO_HATCH,
+        #    DIAGONAL_FULL,
+        #    DIAGONAL_EDGE
+        # };
+        # in the KiCad C++ source pcbnew/zone_settings.h.
+        #
+        # It seems that the version of the Python bindings
+        # on current versions of KiCad don't have this enum.
+        DIAGONAL_EDGE = 2
+        newarea = pcb.InsertArea(net.GetNet(), 0, layer, l, t,
+                                    DIAGONAL_EDGE)
+        newoutline = newarea.Outline()
+        newoutline.Append(l, b)
+        newoutline.Append(r, b)
+        newoutline.Append(r, t)
+        newarea.Hatch()
 
         filler = pcbnew.ZONE_FILLER(pcb)
         zones = pcb.Zones()
