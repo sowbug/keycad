@@ -110,7 +110,7 @@ def main():
 
     if args.add_blue_pill:
         # TODO(miket): this is a horrible hack.
-        usb_cutout_position = 10 * key_width
+        usb_cutout_position = 14.375 * key_width
         usb_cutout_width = 4.7 * 2
     else:
         usb_cutout_position = -1

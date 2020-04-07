@@ -69,8 +69,10 @@ def draw_outline(pcb_filename,
         pcb = pcbnew.BOARD()
 
     if usb_cutout_position >= 0:
-        usb_cutout_left = usb_cutout_position - usb_cutout_width / 2
-        usb_cutout_right = usb_cutout_position + usb_cutout_width / 2
+        usb_cutout_left = (usb_cutout_position -
+                           usb_cutout_width / 2) * MM_TO_KC
+        usb_cutout_right = (usb_cutout_position +
+                            usb_cutout_width / 2) * MM_TO_KC
         draw_segment(pcb, points[0][0] + corner_rad_kc, points[0][1],
                      usb_cutout_left, points[0][1])
         draw_segment(pcb, usb_cutout_right, points[1][1],
