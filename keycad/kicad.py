@@ -51,10 +51,15 @@ def draw_outline(pcb_filename,
                  modify_existing=True,
                  margin_mm=0,
                  corner_radius_mm=3):
-    l = int(left_mm * MM_TO_KC)
-    t = int(top_mm * MM_TO_KC)
-    r = int(left_mm + width_mm) * MM_TO_KC
-    b = int(top_mm + height_mm) * MM_TO_KC
+    l = left_mm * MM_TO_KC
+    t = top_mm * MM_TO_KC
+    r = (left_mm + width_mm) * MM_TO_KC
+    b = (top_mm + height_mm) * MM_TO_KC
+
+    l = int(l)
+    t = int(t)
+    r = int(r)
+    b = int(b)
 
     margin_kc = margin_mm * MM_TO_KC
     corner_rad_kc = corner_radius_mm * MM_TO_KC
@@ -100,27 +105,27 @@ def draw_outline(pcb_filename,
 
     pcbnew.SaveBoard(pcb_filename, pcb)
 
-def draw_keepout(pcb_filename,
-                 left_mm,
-                 top_mm,
-                 width_mm,
-                 height_mm):
-    l = int(left_mm * MM_TO_KC)
-    t = int(top_mm * MM_TO_KC)
-    r = int(left_mm + width_mm) * MM_TO_KC
-    b = int(top_mm + height_mm) * MM_TO_KC
+
+def draw_keepout(pcb_filename, left_mm, top_mm, width_mm, height_mm):
+    l = left_mm * MM_TO_KC
+    t = top_mm * MM_TO_KC
+    r = (left_mm + width_mm) * MM_TO_KC
+    b = (top_mm + height_mm) * MM_TO_KC
+
+    l = int(l)
+    t = int(t)
+    r = int(r)
+    b = int(b)
 
     pcb = pcbnew.LoadBoard(pcb_filename)
     layer = pcbnew.F_Cu
-    # See below for where the 2 comes from
-    area = pcb.InsertArea(-1, 0xffff, layer, 0, 0, 2)
+    area = pcb.InsertArea(0, 0, layer, l, t,
+                          pcbnew.ZONE_CONTAINER.DIAGONAL_EDGE)
     area.SetIsKeepout(True)
     area.SetDoNotAllowTracks(True)
     area.SetDoNotAllowVias(True)
     area.SetDoNotAllowCopperPour(True)
     outline = area.Outline()
-    outline.NewOutline()
-    outline.Append(l, t)
     outline.Append(r, t)
     outline.Append(r, b)
     outline.Append(l, b)
@@ -129,6 +134,7 @@ def draw_keepout(pcb_filename,
     # https://github.com/NilujePerchut/kicad_scripts/blob/master/teardrops/td.py
 
     pcbnew.SaveBoard(pcb_filename, pcb)
+
 
 def pour_fills(pcb_filename):
     pcb = pcbnew.LoadBoard(pcb_filename)
@@ -155,21 +161,8 @@ def pour_fills(pcb_filename):
     for netname, layername in (powernets):
         net = nets.find(netname).value()[1]
         layer = layertable[layername]
-        # The number 2 is found in this code snippet:
-        #
-        # enum class ZONE_HATCH_STYLE
-        # {
-        #    NO_HATCH,
-        #    DIAGONAL_FULL,
-        #    DIAGONAL_EDGE
-        # };
-        # in the KiCad C++ source pcbnew/zone_settings.h.
-        #
-        # It seems that the version of the Python bindings
-        # on current versions of KiCad don't have this enum.
-        DIAGONAL_EDGE = 2
         newarea = pcb.InsertArea(net.GetNet(), 0, layer, l, t,
-                                    DIAGONAL_EDGE)
+                                 pcbnew.ZONE_CONTAINER.DIAGONAL_EDGE)
         newoutline = newarea.Outline()
         newoutline.Append(l, b)
         newoutline.Append(r, b)

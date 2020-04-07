@@ -122,8 +122,8 @@ def main():
                  board_height * key_height,
                  usb_cutout_position=usb_cutout_position,
                  usb_cutout_width=usb_cutout_width)
-    draw_keepout(pcb_filename, usb_cutout_position - usb_cutout_width / 2, -10,
-                 usb_cutout_width, 7)
+    draw_keepout(pcb_filename, usb_cutout_position - usb_cutout_width / 2, -9.525,
+                 usb_cutout_width, 6.1)
     draw_outline(pcb_sandwich_bottom_filename,
                  -key_width / 2,
                  -key_height / 2,
