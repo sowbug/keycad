@@ -1,4 +1,4 @@
-(module USB_C_Receptacle_HRO_TYPE-C-31-M-14 (layer F.Cu) (tedit 5E8BEA0B)
+(module USB_C_Receptacle_HRO_TYPE-C-31-M-14 (layer F.Cu) (tedit 5E8BEDF3)
   (descr "USB Type-C receptacle for USB 3.1 and PD, http://www.krhro.com/uploads/soft/180329/1-1P329145426.pdf")
   (tags "usb usb-c 3.1 pd")
   (attr smd)
@@ -30,7 +30,6 @@
   (fp_line (start 3.24 -6.1) (end 3.24 -5.51) (layer Edge.Cuts) (width 0.12))
   (fp_line (start 3.24 -5.51) (end 4.7 -5.51) (layer Edge.Cuts) (width 0.12))
   (fp_line (start 4.7 -5.51) (end 4.7 0) (layer Edge.Cuts) (width 0.12))
-  (fp_line (start 4.7 0) (end -4.7 0) (layer Edge.Cuts) (width 0.12))
   (fp_line (start -4.7 0) (end -4.7 -5.51) (layer Edge.Cuts) (width 0.12))
   (pad B1 smd rect (at 3.25 -7.63) (size 0.6 1.45) (layers F.Cu F.Paste F.Mask))
   (pad A9 smd rect (at 2.45 -7.63) (size 0.6 1.45) (layers F.Cu F.Paste F.Mask))
