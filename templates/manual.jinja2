@@ -1,4 +1,4 @@
-# Keyboard Name
+# {{ descriptors.identifier }}
 
 Key switch spacing is {{ keyswitch_width_mm }}mm by {{ keyswitch_height_mm }}mm.
 
@@ -11,13 +11,13 @@ Key switch spacing is {{ keyswitch_width_mm }}mm by {{ keyswitch_height_mm }}mm.
 
 #include "config_common.h"
 
-// USB Device descriptor parameter
-#define VENDOR_ID       0xFEED
-#define PRODUCT_ID      0x8888
+// USB Device descriptor parameters
+#define VENDOR_ID       {{ descriptors.usb_vid }}
+#define PRODUCT_ID      {{ descriptors.usb_pid }}
 #define DEVICE_VER      0x0001
-#define MANUFACTURER    Generic
-#define PRODUCT         Keyboard
-#define DESCRIPTION     Keyboard
+#define MANUFACTURER    {{ descriptors.usb_manufacturer }}
+#define PRODUCT         {{ descriptors.usb_product }}
+#define DESCRIPTION     {{ descriptors.usb_description }}
 
 // key matrix size
 #define MATRIX_ROWS {{ matrix_pins.rows|length }}
@@ -33,7 +33,7 @@ Key switch spacing is {{ keyswitch_width_mm }}mm by {{ keyswitch_height_mm }}mm.
 ```
 ---
 ```
-// keyboard.h
+// {{ descriptors.identifier }}.h
 
 #pragma once
 
@@ -48,9 +48,9 @@ Key switch spacing is {{ keyswitch_width_mm }}mm by {{ keyswitch_height_mm }}mm.
 ```
 ---
 ```
-// keyboard.c
+// {{ descriptors.identifier }}.c
 
-#include "keyboard.h"
+#include QMK_KEYBOARD_H
 
 void matrix_init_kb(void) {
 	// put your keyboard start-up code here

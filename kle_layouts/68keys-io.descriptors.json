@@ -1,0 +1,9 @@
+{
+    "family_id": "keycad",
+    "identifier": "68keys",
+    "usb_vid": "0xFEED",
+    "usb_pid": "0x8888",
+    "usb_manufacturer": "Generic",
+    "usb_product": "68 Keys",
+    "usb_description": "A keyboard"
+}

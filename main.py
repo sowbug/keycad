@@ -27,6 +27,8 @@ def main():
         "Generate keyboard manufacturing files from www.keyboard-layout-editor.com JSON."
     )
     arg_parser.add_argument("kle_json_filename", help="KLE JSON filename")
+    arg_parser.add_argument("--descriptors_filename",
+                            help="JSON file containing keyboard description")
     arg_parser.add_argument("--position_json_filename",
                             help="kinjector-format overrides of positions")
     arg_parser.add_argument("--output_prefix",
@@ -54,6 +56,22 @@ def main():
     kbd_dict = {
         "args": str(args),
     }
+
+    if args.descriptors_filename:
+        with open(args.descriptors_filename, "r") as f:
+            descriptors = json.loads(f.read())
+            print(descriptors)
+    else:
+        descriptors = {
+            "family_id": "keycad",
+            "identifier": "generic_keyboard",
+            "usb_vid": "0xFEED",
+            "usb_pid": "0x0001",
+            "usb_manufacturer": "Generic",
+            "usb_product": "Generic",
+            "usb_description": "A keyboard"
+        }
+    kbd_dict["descriptors"] = descriptors
 
     if args.use_pg1350:
         key_width = 18
@@ -124,8 +142,8 @@ def main():
                  board_height * key_height,
                  usb_cutout_position=usb_cutout_position,
                  usb_cutout_width=usb_cutout_width)
-    draw_keepout(pcb_filename, usb_cutout_position - usb_cutout_width / 2, -9.525,
-                 usb_cutout_width, 6.1)
+    draw_keepout(pcb_filename, usb_cutout_position - usb_cutout_width / 2,
+                 -9.525, usb_cutout_width, 6.1)
     draw_outline(pcb_sandwich_bottom_filename,
                  -key_width / 2,
                  -key_height / 2,
