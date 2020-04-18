@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Process current KLE file",
+            "name": "Process current KLE file with Pro Micro",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -13,6 +13,25 @@
             "console": "integratedTerminal",
             "args": [
                 "--add_pro_micro",
+                "--output_prefix", "${fileBasenameNoExtension}",
+                "--position_json_filename",
+                "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.positions.json",
+                "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.json"
+            ],
+            "env": {
+                "KICAD_SYMBOL_DIR": "${workspaceFolder}",
+                "KISYSMOD": "${workspaceFolder}",
+            }
+        },
+        {
+            "name": "Process current KLE file with Blue Pill",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--add_blue_pill",
                 "--output_prefix", "${fileBasenameNoExtension}",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.positions.json",
