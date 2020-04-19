@@ -4,7 +4,7 @@ import argparse
 import os
 import subprocess
 
-from keycad.kicad import pour_fills
+from keycad.kicad import pour_fills_on_board
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
     arg_parser.add_argument("kicad_pcb_filename", help="Kicad PCB filename")
     args = arg_parser.parse_args()
 
-    pour_fills(args.kicad_pcb_filename)
+    pour_fills_on_board(args.kicad_pcb_filename)
 
 
 if __name__ == "__main__":

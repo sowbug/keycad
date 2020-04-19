@@ -127,6 +127,20 @@ class Key:
     @property
     def matrix_col(self):
         return self.__matrix_col
+    
+    @property
+    def rowcol_label(self):
+        return "R%dC%d" % (self.matrix_row, self.matrix_col)
+    
+    def get_rowcol_label_dict(self, width_mm, height_mm):
+        x, y = self.position
+        x += 0.1
+        y += 0.3
+        return {
+            "text": self.rowcol_label,
+            "x_mm": x * width_mm,
+            "y_mm": y * height_mm
+        }
 
     @property
     def matrix_identifier(self):

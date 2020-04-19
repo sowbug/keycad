@@ -8,7 +8,8 @@ import subprocess
 from skidl import generate_netlist
 
 from keycad.builder import BoardBuilder
-from keycad.kicad import draw_outline, draw_keepout, generate_kicad_pcb
+from keycad.kicad import (add_keepout_to_board, add_labels_to_board,
+                          add_outline_to_board, generate_kicad_pcb)
 from keycad.kle import Parser
 from keycad.manual import Manual
 from keycad.pcb import Pcb
@@ -135,8 +136,10 @@ def main():
 
     board_width = parser.board_right - parser.board_left
     board_height = parser.board_bottom - parser.board_top
-    kbd_dict["pcb_width_mm"] = board_width * key_width
-    kbd_dict["pcb_height_mm"] = board_height * key_height
+    pcb_width_mm = board_width * key_width
+    pcb_height_mm = board_height * key_height
+    kbd_dict["pcb_width_mm"] = pcb_width_mm
+    kbd_dict["pcb_height_mm"] = pcb_height_mm
 
     if args.add_blue_pill:
         # TODO(miket): this is a horrible hack.
@@ -145,31 +148,42 @@ def main():
     else:
         usb_cutout_position = -1
         usb_cutout_width = -1
-    draw_outline(pcb_filename,
-                 -key_width / 2,
-                 -key_height / 2,
-                 board_width * key_width,
-                 board_height * key_height,
-                 usb_cutout_position=usb_cutout_position,
-                 usb_cutout_width=usb_cutout_width)
-    draw_keepout(pcb_filename, usb_cutout_position - usb_cutout_width / 2,
-                 -9.525, usb_cutout_width, 6.1)
-    draw_outline(pcb_sandwich_bottom_filename,
-                 -key_width / 2,
-                 -key_height / 2,
-                 board_width * key_width,
-                 board_height * key_height,
-                 modify_existing=False,
-                 margin_mm=5,
-                 corner_radius_mm=5)
-    draw_outline(pcb_sandwich_plate_filename,
-                 -key_width / 2,
-                 -key_height / 2,
-                 board_width * key_width,
-                 board_height * key_height,
-                 modify_existing=False,
-                 margin_mm=5,
-                 corner_radius_mm=5)
+    add_outline_to_board(pcb_filename,
+                         -key_width / 2,
+                         -key_height / 2,
+                         pcb_width_mm,
+                         pcb_height_mm,
+                         usb_cutout_position=usb_cutout_position,
+                         usb_cutout_width=usb_cutout_width)
+    add_keepout_to_board(pcb_filename,
+                         usb_cutout_position - usb_cutout_width / 2, -9.525,
+                         usb_cutout_width, 6.1)
+    add_outline_to_board(pcb_sandwich_bottom_filename,
+                         -key_width / 2,
+                         -key_height / 2,
+                         pcb_width_mm,
+                         pcb_height_mm,
+                         modify_existing=False,
+                         margin_mm=5,
+                         corner_radius_mm=5)
+    add_outline_to_board(pcb_sandwich_plate_filename,
+                         -key_width / 2,
+                         -key_height / 2,
+                         pcb_width_mm,
+                         pcb_height_mm,
+                         modify_existing=False,
+                         margin_mm=5,
+                         corner_radius_mm=5)
+    labels = []
+    for key in parser.keys:
+        labels.append(key.get_rowcol_label_dict(key_width, key_height))
+    legends = schematic.get_legend_dict()
+    labels.append({
+        "text": schematic.get_legend_text(),
+        "x_mm": pcb_width_mm / 2,
+        "y_mm": pcb_height_mm - key_height / 2 - 1
+    })
+    add_labels_to_board(pcb_filename, labels)
 
     os.unlink(os.path.join(out_dir, KINJECTOR_JSON_FILENAME))
 

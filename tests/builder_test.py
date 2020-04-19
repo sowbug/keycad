@@ -5,7 +5,7 @@ from skidl import Net, Part
 
 from keycad import builder
 from keycad.builder import BoardBuilder
-from keycad.kicad import draw_outline, generate_kicad_pcb
+from keycad.kicad import add_outline_to_board, generate_kicad_pcb
 from keycad.kle import Parser
 from keycad.manual import Manual
 from keycad.pcb import Pcb

@@ -41,16 +41,16 @@ def draw_arc(board, cx, cy, sx, sy, a):
     ds.SetAngle(a * 10)
 
 
-def draw_outline(pcb_filename,
-                 left_mm,
-                 top_mm,
-                 width_mm,
-                 height_mm,
-                 usb_cutout_position=-1,
-                 usb_cutout_width=-1,
-                 modify_existing=True,
-                 margin_mm=0,
-                 corner_radius_mm=3):
+def add_outline_to_board(pcb_filename,
+                         left_mm,
+                         top_mm,
+                         width_mm,
+                         height_mm,
+                         usb_cutout_position=-1,
+                         usb_cutout_width=-1,
+                         modify_existing=True,
+                         margin_mm=0,
+                         corner_radius_mm=3):
     l = left_mm * MM_TO_KC
     t = top_mm * MM_TO_KC
     r = (left_mm + width_mm) * MM_TO_KC
@@ -106,7 +106,26 @@ def draw_outline(pcb_filename,
     pcbnew.SaveBoard(pcb_filename, pcb)
 
 
-def draw_keepout(pcb_filename, left_mm, top_mm, width_mm, height_mm):
+def draw_text(board, text, x, y):
+    txtmod = pcbnew.TEXTE_PCB(board)
+    txtmod.SetText(text)
+    txtmod.SetPosition(pcbnew.wxPoint(int(x), int(y)))
+    txtmod.SetHorizJustify(pcbnew.GR_TEXT_HJUSTIFY_CENTER)
+    txtmod.SetTextSize(pcbnew.wxSize(0.75 * MM_TO_KC, 1 * MM_TO_KC))
+    txtmod.SetThickness(int(0.1 * MM_TO_KC))
+    txtmod.SetLayer(pcbnew.F_SilkS)
+    board.Add(txtmod)
+
+def add_labels_to_board(pcb_filename, labels):
+    pcb = pcbnew.LoadBoard(pcb_filename)
+
+    for label in labels:
+        draw_text(pcb, label["text"], label["x_mm"] * MM_TO_KC,
+                  label["y_mm"] * MM_TO_KC)
+    pcbnew.SaveBoard(pcb_filename, pcb)
+
+
+def add_keepout_to_board(pcb_filename, left_mm, top_mm, width_mm, height_mm):
     l = left_mm * MM_TO_KC
     t = top_mm * MM_TO_KC
     r = (left_mm + width_mm) * MM_TO_KC
@@ -136,7 +155,7 @@ def draw_keepout(pcb_filename, left_mm, top_mm, width_mm, height_mm):
     pcbnew.SaveBoard(pcb_filename, pcb)
 
 
-def pour_fills(pcb_filename):
+def pour_fills_on_board(pcb_filename):
     pcb = pcbnew.LoadBoard(pcb_filename)
     pcb.ComputeBoundingBox(False)
     bb = pcb.GetBoundingBox()

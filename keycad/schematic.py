@@ -444,3 +444,7 @@ class Schematic:
 
     def get_legend_dict(self):
         return {"cols": self.__legend_cols, "rows": self.__legend_rows}
+
+    def get_legend_text(self):
+        return "Rows: %s Cols: %s" % ("/".join(self.__legend_rows), "/".join(
+            self.__legend_cols))
