@@ -34,12 +34,15 @@ the keycad.pretty/ directory as a global footprint library.
 
 ## Useful Tools, Prior Art, and Guides
 
-* https://github.com/ruiqimao/keyboard-pcb-guide
 * http://builder.swillkb.com/
 * http://www.keyboard-layout-editor.com/
+* https://config.qmk.fm/
+* https://docs.qmk.fm/
 * https://github.com/fcoury/kbpcb
+* https://github.com/ruiqimao/keyboard-pcb-guide
 * https://kbplate.ai03.me/
 * https://keebfol.io/tools
+* https://qmk.fm/converter/
 * https://wiki.ai03.me/books/pcb-design
 
 ## KiCad components and footprints that were copied into here
