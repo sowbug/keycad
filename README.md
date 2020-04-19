@@ -25,7 +25,7 @@ the keycad.pretty/ directory as a global footprint library.
 4. After a couple moments, KiCad should pop up with a PCB that implements your
    keyboard. Inspect it and make sure the parts are in the right place.
 5. Route the board (include instructions how to use freerouting).
-6. Pour the fills.
+6. Pour the fills using `./pour_fills.py [path to your kicad_pcb]`.
 7. Go have your PCB manufactured somewhere like [JLCPCB](https://jlcpcb.com/).
 8. TODO: Order the parts you need from the generated BOM. 
 9. TODO: when your PCB and parts arrive and you've assembled everything
