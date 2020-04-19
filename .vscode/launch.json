@@ -13,6 +13,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--add_pro_micro",
+                "--add_per_key_rgb",
                 "--output_prefix", "${fileBasenameNoExtension}",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.positions.json",
@@ -32,6 +33,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--add_blue_pill",
+                "--add_per_key_rgb",
                 "--output_prefix", "${fileBasenameNoExtension}",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.positions.json",
@@ -51,6 +53,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--add_pro_micro",
+                "--add_per_key_rgb",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
                 "--output_prefix", "68-keys",
@@ -71,6 +74,7 @@
             "console": "integratedTerminal",
             "args": [
                 "--add_blue_pill",
+                "--add_per_key_rgb",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
                 "--descriptors_filename",

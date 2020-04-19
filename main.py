@@ -44,6 +44,10 @@ def main():
                             help="whether to add Blue Pill to board",
                             action="store_true")
     arg_parser.add_argument(
+        "--add_per_key_rgb",
+        help="whether to add an RGB LED for each keyswitch",
+        action="store_true")
+    arg_parser.add_argument(
         "--use_pg1350",
         help="whether to use Kailh Choc PG1350 instead of Cherry MX",
         action="store_true")
@@ -110,13 +114,15 @@ def main():
 
     builder = BoardBuilder(parser, schematic)
     builder.build(add_pro_micro=args.add_pro_micro,
-                  add_blue_pill=args.add_blue_pill)
+                  add_blue_pill=args.add_blue_pill,
+                  add_per_key_rgb=args.add_per_key_rgb)
     kbd_dict["matrix_pins"] = schematic.get_legend_dict()
     kbd_dict["kle"] = parser
     kbd_dict["key_matrix_keys"] = schematic.key_matrix_keys
 
     kbd_dict["has_per_key_led"] = True
-    kbd_dict["led_data_pin"] = schematic.led_data_pin_name
+    if schematic.led_data_pin_name is not None:
+        kbd_dict["led_data_pin"] = schematic.led_data_pin_name
     kbd_dict["led_count"] = parser.key_count
 
     with open(netlist_filename, "w") as f:

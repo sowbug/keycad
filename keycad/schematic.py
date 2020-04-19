@@ -179,6 +179,7 @@ class Schematic:
     def __init__(self, pcb, is_mx=True, is_hotswap=True):
         self.__keysw_partno = 1
         self.__d_partno = 1
+        self.__c_partno = 1
         self.__r_partno = 1
         self.__led_partno = 1
         self.__key_matrix_rows = []
@@ -204,10 +205,12 @@ class Schematic:
 
         self._prior_y = -1
 
+        self.__led_din_pin_name = None
+
     @property
     def key_matrix_keys(self):
         return self.__key_matrix_keys
-    
+
     @property
     def led_data_pin_name(self):
         return self.__led_din_pin_name
@@ -229,7 +232,7 @@ class Schematic:
         self.__pcb.place_keyswitch_on_keyboard_grid(part, key)
         return part
 
-    def create_key_led(self, key):
+    def create_key_rgb(self, key):
         part = Part('keycad',
                     'SK6812MINI-E',
                     NETLIST,
@@ -240,7 +243,18 @@ class Schematic:
         self.__pcb.place_led_on_keyboard_grid(part, key)
         return part
 
-    def connect_per_key_led(self, led):
+    def create_key_rgb_capacitor(self, key):
+        part = Part('keycad',
+                    'C',
+                    NETLIST,
+                    footprint='keycad:C_0805_2012Metric')
+        part.ref = "C%d" % (self.__c_partno)
+        part.value = "0.1uF"
+        self.__c_partno += 1
+        self.__pcb.place_led_capacitor_on_keyboard_grid(part, key)
+        return part
+
+    def connect_per_key_rgb(self, led):
         # SK6812 Mini-E
         # 1 VCC
         # 2 DOUT
@@ -258,6 +272,10 @@ class Schematic:
             led[4] += self.__led_dout_pin
             led[4].net.name = "%s_DIN" % led.ref
         self.__led_dout_pin = led[2]
+
+    def connect_per_key_rgb_capacitor(self, c):
+        self.__vcc += c[1]
+        self.__gnd += c[2]
 
     def create_diode(self, key):
         part = Part('keycad', 'D', NETLIST, footprint='keycad:D_0805')
@@ -293,7 +311,7 @@ class Schematic:
         self.assign_matrix_location_to_key(key)
         self.connect_to_matrix(keysw_part[1], diode_part[1])
 
-    def add_key(self, key):
+    def add_key(self, key, add_led=True):
         if key.y != self._prior_y:
             if self._prior_y != -1:
                 self.advance_matrix_row()
@@ -303,8 +321,11 @@ class Schematic:
         d_part = self.create_diode(key)
         self.connect_keyswitch_and_diode(key, keysw_part, d_part)
 
-        led_part = self.create_key_led(key)
-        self.connect_per_key_led(led_part)
+    def add_per_key_rgb(self, key):
+        led_part = self.create_key_rgb(key)
+        cap_part = self.create_key_rgb_capacitor(key)
+        self.connect_per_key_rgb(led_part)
+        self.connect_per_key_rgb_capacitor(cap_part)
 
     def create_matrix_nets(self, key_count, key_row_count, key_col_count,
                            gpio_count):

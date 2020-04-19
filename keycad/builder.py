@@ -3,7 +3,10 @@ class BoardBuilder:
         self._kle = kle
         self._schematic = schematic
 
-    def build(self, add_pro_micro=True, add_blue_pill=False):
+    def build(self,
+              add_pro_micro=True,
+              add_blue_pill=False,
+              add_per_key_rgb=True):
         mcu = None
         if add_pro_micro:
             mcu = self._schematic.create_pro_micro()
@@ -19,6 +22,8 @@ class BoardBuilder:
         led_identifier = 0
         for key in self._kle.keys:
             self._schematic.add_key(key)
+            if add_per_key_rgb:
+                self._schematic.add_per_key_rgb(key)
             (led_x, led_y) = key.position
             # https://docs.qmk.fm/#/feature_rgb_matrix
             key.led_x = (led_x / board_width) * 224
