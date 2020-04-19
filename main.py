@@ -115,6 +115,10 @@ def main():
     kbd_dict["kle"] = parser
     kbd_dict["key_matrix_keys"] = schematic.key_matrix_keys
 
+    kbd_dict["has_per_key_led"] = True
+    kbd_dict["led_data_pin"] = schematic.led_data_pin_name
+    kbd_dict["led_count"] = parser.key_count
+
     with open(netlist_filename, "w") as f:
         generate_netlist(file_=f)
 
@@ -125,8 +129,8 @@ def main():
 
     board_width = parser.board_right - parser.board_left
     board_height = parser.board_bottom - parser.board_top
-    kbd_dict["pcb_width_mm"] = board_width
-    kbd_dict["pcb_height_mm"] = board_height
+    kbd_dict["pcb_width_mm"] = board_width * key_width
+    kbd_dict["pcb_height_mm"] = board_height * key_height
 
     if args.add_blue_pill:
         # TODO(miket): this is a horrible hack.

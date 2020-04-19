@@ -11,11 +11,20 @@ class BoardBuilder:
             mcu = self._schematic.create_blue_pill()
 
         self._schematic.create_matrix_nets(self._kle.key_count,
-                                            self._kle.row_count,
-                                            self._kle.max_col_count,
-                                            mcu.gpio_count)
+                                           self._kle.row_count,
+                                           self._kle.max_col_count,
+                                           mcu.gpio_count)
+        board_width = self._kle.board_right - self._kle.board_left
+        board_height = self._kle.board_bottom - self._kle.board_top
+        led_identifier = 0
         for key in self._kle.keys:
             self._schematic.add_key(key)
+            (led_x, led_y) = key.position
+            # https://docs.qmk.fm/#/feature_rgb_matrix
+            key.led_x = (led_x / board_width) * 224
+            key.led_y = (led_y / board_height) * 64
+            key.led_identifier = led_identifier
+            led_identifier += 1
 
         if add_pro_micro:
             reset = self._schematic.create_reset_switch()

@@ -1,8 +1,6 @@
 # {{ descriptors.identifier }}
 
-PCB is {{ pcb_width_mm }}mm by {{ pcb_height_mm }}mm. Recommended thickness
-is standard 1.6mm. Key switch spacing is {{ keyswitch_width_mm }}mm by
-{{ keyswitch_height_mm }}mm.
+PCB is {{ pcb_width_mm }}mm by {{ pcb_height_mm }}mm. Recommended thickness is standard 1.6mm. Key switch spacing is {{ keyswitch_width_mm }}mm by {{ keyswitch_height_mm }}mm.
 
 ## Key matrix
 
@@ -32,6 +30,14 @@ is standard 1.6mm. Key switch spacing is {{ keyswitch_width_mm }}mm by
 
 // COL2ROW or ROW2COL
 #define DIODE_DIRECTION COL2ROW
+
+#define RGB_DI_PIN {{ led_data_pin }}
+#ifdef RGB_DI_PIN
+    #define RGB_MATRIX_KEYPRESSES
+    #define DRIVER_LED_TOTAL ({{ led_count }})
+    #define RGBLED_NUM (DRIVER_LED_TOTAL)
+#endif
+
 ```
 ---
 ```
@@ -53,6 +59,19 @@ is standard 1.6mm. Key switch spacing is {{ keyswitch_width_mm }}mm by
 // {{ descriptors.identifier }}.c
 
 #include QMK_KEYBOARD_H
+{% if has_per_key_led %}#include "quantum/rgb_matrix.h"{% endif %}
+
+{% if has_per_key_led %}led_config_t g_led_config = { {
+  // Key Matrix to LED Index{% for row in key_matrix_keys %}
+  { {% for key in row %}{% if key %}{{ key.led_identifier }}{% else %}NO_LED{% endif %}{% if loop.last %}{% else %}, {% endif %}{% endfor %} }{% if loop.last %}{% else %},{% endif %}{% endfor %}
+}, {
+  // LED Index to Physical Position
+  {% for key in kle.keys %}{{ "{" }}{{ key.led_x }}, {{ key.led_y }}{{ "}" }}{% if loop.last %}{% else %}, {% endif %}{% endfor %}
+}, {
+  // LED Index to Flag
+  {% for key in kle.keys %}LED_FLAG_KEYLIGHT{% if loop.last %}{% else %}, {% endif %}{% endfor %}
+}
+};{% endif %}
 
 void matrix_init_kb(void) {
 	// put your keyboard start-up code here

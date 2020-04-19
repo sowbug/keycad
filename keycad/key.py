@@ -60,6 +60,9 @@ class Key:
         self.__is_homing = is_homing
         self.__matrix_row = -1
         self.__matrix_col = -1
+        self.__led_x = -1
+        self.__led_y = -1
+        self.__led_identifier = -1
 
     @property
     def labels(self):
@@ -72,6 +75,30 @@ class Key:
     @property
     def y(self):
         return self.__y
+
+    @property
+    def led_x(self):
+        return self.__led_x
+
+    @property
+    def led_y(self):
+        return self.__led_y
+
+    @led_x.setter
+    def led_x(self, x):
+        self.__led_x = int(x)
+
+    @led_y.setter
+    def led_y(self, y):
+        self.__led_y = int(y)
+
+    @property
+    def led_identifier(self):
+        return self.__led_identifier
+
+    @led_identifier.setter
+    def led_identifier(self, id):
+        self.__led_identifier = id
 
     @property
     def width(self):

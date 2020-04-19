@@ -207,6 +207,10 @@ class Schematic:
     @property
     def key_matrix_keys(self):
         return self.__key_matrix_keys
+    
+    @property
+    def led_data_pin_name(self):
+        return self.__led_din_pin_name
 
     def create_keyswitch(self, key):
         if self._is_mx:
@@ -329,6 +333,7 @@ class Schematic:
         if self.__led_din_pin is not None:
             self.__led_din_pin += mcu.claim_led_din_pin()
             self.__led_din_pin.net.name = "LED_DATA"
+            self.__led_din_pin_name = mcu.get_pin_name(mcu.led_din_pin_no)
 
         for row in self.__key_matrix_rows:
             if len(row) == 0:
