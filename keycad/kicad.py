@@ -116,6 +116,7 @@ def draw_text(board, text, x, y):
     txtmod.SetLayer(pcbnew.F_SilkS)
     board.Add(txtmod)
 
+
 def add_labels_to_board(pcb_filename, labels):
     pcb = pcbnew.LoadBoard(pcb_filename)
 
