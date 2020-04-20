@@ -74,6 +74,18 @@ class TestKle(unittest.TestCase):
                     if key.labels[0] in s['homing_keys']:
                         self.assertTrue(key.is_homing)
 
+        # Wasn't handling row height correctly
+        p.load("kle_layouts/%s.json" % ('ansi-104'))
+        for key in p.keys:
+            if key.labels[0] == 'Esc':
+                self.assertEqual(key.y, 0)
+            if key.labels[0] == 'Ctrl':
+                self.assertEqual(key.y, 5.5)
+            if key.labels[0] == '~':
+                self.assertEqual(key.y, 1.5)
+            if key.labels[0] == '!':
+                self.assertEqual(key.y, 1.5)
+
 
 if __name__ == "__main__":
     unittest.main()

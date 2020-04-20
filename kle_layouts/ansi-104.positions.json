@@ -1,6 +1,54 @@
 {
   "board": {
-    "modules": {
-    }
+      "modules": {
+          "SW1": {
+              "position": {
+                  "angle": 0,
+                  "side": "bottom",
+                  "x": 314000000,
+                  "y": 55000000
+              }
+          },
+          "U1": {
+              "position": {
+                  "angle": 180,
+                  "side": "top",
+                  "x": 367030000,
+                  "y": -5080000
+              }
+          },
+          "U2": {
+              "position": {
+                  "angle": 90,
+                  "side": "bottom",
+                  "x": 367030000,
+                  "y": -5080000
+              }
+          },
+          "J1": {
+              "position": {
+                  "angle": 0,
+                  "side": "bottom",
+                  "x": 353060000,
+                  "y": -9525000
+              }
+          },
+          "R1": {
+              "position": {
+                  "angle": 0,
+                  "side": "bottom",
+                  "x": 270500000,
+                  "y": 1250000
+              }
+          },
+          "R2": {
+              "position": {
+                  "angle": 0,
+                  "side": "bottom",
+                  "x": 276860000,
+                  "y": 1250000
+              }
+          }
+      }
   }
 }

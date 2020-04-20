@@ -1,0 +1,9 @@
+{
+  "family_id": "keycad",
+  "identifier": "ansi104",
+  "usb_vid": "0xFEED",
+  "usb_pid": "0x8888",
+  "usb_manufacturer": "Generic",
+  "usb_product": "ANSI 104",
+  "usb_description": "A keyboard"
+}

@@ -89,7 +89,7 @@ class Parser:
     def _process_key(self, k):
         logger.info("processing key '%s'" % (k))
         new_key = key.Key(self.__cursor_x + self.__current_key_x_padding,
-                          self.__cursor_y + self.__current_key_y_padding,
+                          self.__cursor_y,
                           text=k,
                           width=self.__current_key_width,
                           height=self.__current_key_height,
@@ -109,10 +109,14 @@ class Parser:
         self.__cursor_x = 0
         self._row_count += 1
         self._col_count = 0
+        first_key_in_row = True
         for key in row:
             if isinstance(key, dict):
                 self._process_key_metadata(key)
             else:
+                if first_key_in_row:
+                    first_key_in_row = False
+                    self.__cursor_y += self.__current_key_y_padding
                 self._process_key(key)
                 self.__cursor_x += (self.__current_key_width +
                                     self.__current_key_x_padding)
@@ -128,10 +132,7 @@ class Parser:
             else:
                 self._process_row(row)
                 self.__cursor_x = 0
-                # TODO(miket): I'm not sure about the y padding.
-                # That seems more like an attribute of the whole row
-                self.__cursor_y += (self.__current_row_height +
-                                    self.__current_key_y_padding)
+                self.__cursor_y += self.__current_row_height
 
     def load(self, filename):
         self.reset()
