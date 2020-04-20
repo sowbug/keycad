@@ -14,6 +14,7 @@ from keycad.kle import Parser
 from keycad.manual import Manual
 from keycad.pcb import Pcb
 from keycad.schematic import Schematic
+from keycad.partstore import PartStore
 
 PCB_FILENAME_SUFFIX = ".kicad_pcb"
 NETLIST_FILENAME_SUFFIX = ".net"
@@ -108,7 +109,9 @@ def main():
     user_guide_filename = os.path.join(out_dir,
                                        args.output_prefix + USER_GUIDE_SUFFIX)
 
-    schematic = Schematic(pcb, not args.use_pg1350, not args.no_hotswap)
+    partstore = PartStore()
+    schematic = Schematic(partstore, pcb, not args.use_pg1350,
+                          not args.no_hotswap)
 
     parser = Parser()
     parser.load(args.kle_json_filename)
@@ -177,7 +180,6 @@ def main():
     labels = []
     for key in parser.keys:
         labels.append(key.get_rowcol_label_dict(key_width, key_height))
-    legends = schematic.get_legend_dict()
     labels.append({
         "text": schematic.get_legend_text(),
         "x_mm": pcb_width_mm / 2,
@@ -186,6 +188,8 @@ def main():
     add_labels_to_board(pcb_filename, labels)
 
     os.unlink(os.path.join(out_dir, KINJECTOR_JSON_FILENAME))
+
+    kbd_dict["bom"] = partstore.get_bom()
 
     manual = Manual(kbd_dict)
     manual.generate(user_guide_filename)

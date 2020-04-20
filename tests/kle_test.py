@@ -69,7 +69,7 @@ class TestKle(unittest.TestCase):
             self.assertEqual(p.key_count, s['key_count'])
             for key in p.keys:
                 self.assertTrue(len(key.labels) > 0)
-                
+
                 if 'homing_keys' in s:
                     if key.labels[0] in s['homing_keys']:
                         self.assertTrue(key.is_homing)

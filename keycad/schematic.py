@@ -1,187 +1,15 @@
 import sys
 
-from skidl import NETLIST, Net, Part
+from skidl import Net
 
 from keycad import key
-
-
-class Mcu:
-    def __init__(self):
-        self._part = []
-        self._next_pin_index = 0
-        self.gpio_pin_nos = []
-        self.pin_names = []
-        self.vcc_pin_nos = []
-        self.gnd_pin_nos = []
-        self.led_din_pin_no = -1
-        self.reset_pin_no = -1
-        self.usb_pin_nos = (-1, -1)
-
-    @property
-    def pin_count(self):
-        return len(self.pin_names)
-
-    def get_pin_name(self, pin_no):
-        return self.pin_names[pin_no - 1]
-
-    def populate_pins(self, pin_names):
-        for pin_no in range(1, self.pin_count):
-            name = self.get_pin_name(pin_no)
-            if name == "GND":
-                self.gnd_pin_nos.append(pin_no)
-            if name == "VCC":
-                self.vcc_pin_nos.append(pin_no)
-            if name == "RST":
-                self.reset_pin_no = pin_no
-
-    def get_gnd_pins(self):
-        pins = []
-        for no in self.gnd_pin_nos:
-            pins.append(self._part[no])
-        return tuple(pins)
-
-    def get_vcc_pins(self):
-        pin_nos = []
-        for no in self.vcc_pin_nos:
-            pin_nos.append(self._part[no])
-        return tuple(pin_nos)
-
-    @property
-    def gpio_count(self):
-        return len(self.gpio_pin_nos)
-
-    def claim_next_gpio(self):
-        if len(self.gpio_pin_nos) == 0:
-            raise RuntimeError("Ran out of GPIOs")
-        val = self.gpio_pin_nos.pop(0)
-        return (val, self._part[val])
-
-    def claim_led_din_pin(self):
-        if self.led_din_pin_no in self.gpio_pin_nos:
-            self.gpio_pin_nos.remove(self.led_din_pin_no)
-        return self._part[self.led_din_pin_no]
-
-    def get_reset_pin_no(self):
-        return self.reset_pin_no
-
-    def get_reset_pin(self):
-        return self._part[self.get_reset_pin_no()]
-
-    def get_usb_pin_nos(self):
-        return self.usb_pin_nos
-
-    def get_usb_pins(self):
-        dp_pin_no, dm_pin_no = self.get_usb_pin_nos()
-        return self._part[dp_pin_no], self._part[dm_pin_no]
-
-
-class ProMicro(Mcu):
-    def __init__(self):
-        super().__init__()
-        self._part = Part('keycad',
-                          'ProMicro',
-                          NETLIST,
-                          footprint='keycad:ArduinoProMicro')
-        self._part.ref = 'U1'
-        self._part.value = 'Pro Micro'
-        self.gpio_pin_nos = [
-            1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
-        ]
-        self.pin_names = [
-            "D3", "D2", "GND", "GND", "D1", "D0", "D4", "C6", "D7", "E6", "B4",
-            "B5", "B6", "B2", "B3", "B1", "F7", "F6", "F5", "F4", "VCC", "RST",
-            "GND", "RAW"
-        ]
-        self.populate_pins(self.pin_names)
-        self.led_din_pin_no = 5
-
-    def place(self, pcb):
-        pcb.place_pro_micro_on_keyboard_grid(self._part)
-
-
-class BluePill(Mcu):
-    def __init__(self):
-        super().__init__()
-        self._part = Part('keycad',
-                          'BluePill_STM32F103C',
-                          NETLIST,
-                          footprint='keycad:BluePill_STM32F103C')
-        self._part.ref = 'U2'
-        self._part.value = 'Blue Pill'
-        self.gpio_pin_nos = [
-            3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24,
-            25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37
-        ]
-        self.pin_names = [
-            # 1-8
-            "VBAT",
-            "LED1",  # C13
-            "C14",
-            "C15",
-            "A0",
-            "A1",
-            "A2",
-            "A3",
-
-            # 9-16
-            "A4",
-            "A5",
-            "A6",
-            "A7",
-            "B0",
-            "B1",
-            "B10",
-            "B11",
-
-            # 17-24
-            "RST",
-            "3V3",
-            "GND",
-            "GND",
-            "B12",
-            "B13",
-            "B14",
-            "B15",
-
-            # 25-32
-            "A8",
-            "A9",
-            "A10",
-            "USB_DM",  # A11
-            "USB_DP",  # A12
-            "A15",
-            "B3",
-            "B4",
-
-            # 33-40
-            "B5",
-            "B6",
-            "B7",
-            "B8",
-            "B9",
-            "VCC",
-            "GND",
-            "3V3"
-        ]
-
-        self.populate_pins(self.pin_names)
-
-        # TODO(miket): check which pin other STM32-based boards use
-        self.led_din_pin_no = 37
-
-        self.usb_pin_nos = (29, 28)
-
-    def place(self, pcb):
-        pcb.place_blue_pill_on_keyboard_grid(self._part)
+from keycad import mcu
+from keycad import partstore
 
 
 class Schematic:
-    def __init__(self, pcb, is_mx=True, is_hotswap=True):
-        self.__keysw_partno = 1
-        self.__d_partno = 1
-        self.__c_partno = 1
-        self.__r_partno = 1
-        self.__led_partno = 1
+    def __init__(self, store, pcb, is_mx=True, is_hotswap=True):
+        self._partstore = store
         self.__key_matrix_rows = []
         self.__key_matrix_cols = []
         self.__key_matrix_keys = None
@@ -216,41 +44,18 @@ class Schematic:
         return self.__led_din_pin_name
 
     def create_keyswitch(self, key):
-        if self._is_mx:
-            switch_type = "MX"
-        else:
-            switch_type = "PG1350"
-        if self._is_hotswap:
-            socket_type = "Kailh_socket"
-        else:
-            socket_type = "SW"
-        footprint = "keycad:%s_%s" % (socket_type, switch_type)
-        part = Part('keycad', 'KEYSW', NETLIST, footprint=footprint)
-        part.ref = "K%d" % (self.__keysw_partno)
-        part.value = key.printable_label
-        self.__keysw_partno += 1
+        part = self._partstore.get_keyswitch(key.printable_label, self._is_mx,
+                                             self._is_hotswap)
         self.__pcb.place_keyswitch_on_keyboard_grid(part, key)
         return part
 
     def create_key_rgb(self, key):
-        part = Part('keycad',
-                    'SK6812MINI-E',
-                    NETLIST,
-                    footprint='keycad:SK6812-MINI-E-BOTTOM')
-        part.ref = "LED%d" % (self.__led_partno)
-        part.value = "SK6812MINI-E"
-        self.__led_partno += 1
+        part = self._partstore.get_per_key_rgb_led()
         self.__pcb.place_led_on_keyboard_grid(part, key)
         return part
 
     def create_key_rgb_capacitor(self, key):
-        part = Part('keycad',
-                    'C',
-                    NETLIST,
-                    footprint='keycad:C_0805_2012Metric')
-        part.ref = "C%d" % (self.__c_partno)
-        part.value = "0.1uF"
-        self.__c_partno += 1
+        part = self._partstore.get_capacitor("0.1uF")
         self.__pcb.place_led_capacitor_on_keyboard_grid(part, key)
         return part
 
@@ -278,10 +83,7 @@ class Schematic:
         self.__gnd += c[2]
 
     def create_diode(self, key):
-        part = Part('keycad', 'D', NETLIST, footprint='keycad:D_0805')
-        part.ref = "D%d" % (self.__d_partno)
-        part.value = "1N4148"
-        self.__d_partno += 1
+        part = self._partstore.get_diode()
         self.__pcb.place_diode_on_keyboard_grid(part, key)
         return part
 
@@ -402,43 +204,27 @@ class Schematic:
         self.__next_dout_pin = next_dout_pin
 
     def create_pro_micro(self):
-        mcu = ProMicro()
-        mcu.place(self.__pcb)
-        return mcu
+        uc = mcu.ProMicro(self._partstore)
+        uc.place(self.__pcb)
+        return uc
 
     def create_blue_pill(self):
-        mcu = BluePill()
-        mcu.place(self.__pcb)
-        return mcu
+        uc = mcu.BluePill(self._partstore)
+        uc.place(self.__pcb)
+        return uc
 
     def create_reset_switch(self):
-        part = Part('keycad',
-                    'SW_Push',
-                    NETLIST,
-                    footprint='keycad:SW_SPST_SKQG_WithoutStem')
-        part.ref = 'SW1'
-        part.value = 'SKQGAKE010'
+        part = self._partstore.get_reset_switch()
         self.__pcb.place_reset_switch_on_keyboard_grid(part)
         return part
 
     def create_usb_c_connector(self):
-        part = Part('keycad',
-                    'USB_C_Receptacle_USB2.0',
-                    NETLIST,
-                    footprint='keycad:USB_C_Receptacle_HRO_TYPE-C-31-M-14')
-        part.ref = 'J1'
-        part.value = 'TYPE-C-31-M-14'
+        part = self._partstore.get_usb_c_connector()
         self.__pcb.place_usb_c_connector_on_keyboard_grid(part)
         return part
 
     def create_resistor(self, value):
-        part = Part('keycad',
-                    'R',
-                    NETLIST,
-                    footprint='keycad:R_0805_2012Metric')
-        part.ref = "R%d" % (self.__r_partno)
-        part.value = value
-        self.__r_partno += 1
+        part = self._partstore.get_resistor(value)
         self.__pcb.place_resistor_on_keyboard_grid(part)
         return part
 

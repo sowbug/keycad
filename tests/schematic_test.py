@@ -1,5 +1,6 @@
 import unittest
-from keycad import schematic
+
+from keycad import mcu, partstore, schematic
 
 
 class TestSchematic(unittest.TestCase):
@@ -23,9 +24,11 @@ class TestSchematic(unittest.TestCase):
         self.assertFalse(mcu.led_din_pin_no in mcu.gpio_pin_nos)
 
     def test_pro_micro_pins(self):
-        mcu = schematic.ProMicro()
-        self.check_mcu(mcu)
+        store = partstore.PartStore()
+        uc = mcu.ProMicro(store)
+        self.check_mcu(uc)
 
     def test_blue_pill_pins(self):
-        mcu = schematic.BluePill()
-        self.check_mcu(mcu)
+        store = partstore.PartStore()
+        uc = mcu.BluePill(store)
+        self.check_mcu(uc)
