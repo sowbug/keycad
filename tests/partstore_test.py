@@ -11,7 +11,7 @@ class TestPartStore(unittest.TestCase):
     def test_basic_usage(self):
         store = partstore.PartStore()
 
-        part = store.get_mcu()
+        part = store.get_mcu(partstore.McuType.BluePill)
         self.assertEqual(len(store.parts), 1)
 
 
