@@ -1,5 +1,4 @@
-# KiCad explodes with raw quote
-# freerouting.jar explodes with raw backtick
+# https://docs.qmk.fm/#/keycodes
 SYMBOL_TO_ALNUM = {
     "!": 'EXCL',
     "": 'SPC',
