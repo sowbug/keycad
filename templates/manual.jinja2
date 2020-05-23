@@ -9,6 +9,10 @@ PCB is {{ pcb_width_mm }}mm by {{ pcb_height_mm }}mm. Recommended thickness is s
 {% for d in bom %}* {{ d["quantity"] }} [{{ d["description"] }}](link)
 {% endfor %}
 
+## Firmware notes
+
+Because of https://github.com/qmk/qmk_firmware/issues/8809: `make keycad/68keys:default:dfu-util EXTRAFLAGS+=--specs=nosys.specs`
+
 ## Key matrix
 
 ```
