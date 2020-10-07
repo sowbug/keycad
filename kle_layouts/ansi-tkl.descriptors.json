@@ -1,0 +1,9 @@
+{
+    "family_id": "keycad",
+    "identifier": "ansi-tkl",
+    "usb_vid": "0xFEED",
+    "usb_pid": "0x8889",
+    "usb_manufacturer": "Generic",
+    "usb_product": "ANSI TKL",
+    "usb_description": "A keyboard"
+}

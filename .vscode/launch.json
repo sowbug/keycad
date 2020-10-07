@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Process current KLE file with Pro Micro",
             "type": "python",
@@ -82,6 +83,29 @@
                 "--output_prefix", "68-keys",
                 "--out_dir", "output/68/blue-pill",
                 "${workspaceFolder}/kle_layouts/68keys-io.json"
+            ],
+            "env": {
+                "KICAD_SYMBOL_DIR": "${workspaceFolder}",
+                "KISYSMOD": "${workspaceFolder}",
+            }
+        },
+        {
+            "name": "Generate TKL with Blue Pill",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--add_blue_pill",
+                "--add_per_key_rgb",
+                "--position_json_filename",
+                "${workspaceFolder}/kle_layouts/ansi-tkl.positions.json",
+                "--descriptors_filename",
+                "${workspaceFolder}/kle_layouts/ansi-tkl.descriptors.json",
+                "--output_prefix", "ansi-tkl",
+                "--out_dir", "output/ansi-tkl/blue-pill",
+                "${workspaceFolder}/kle_layouts/ansi-tkl.json"
             ],
             "env": {
                 "KICAD_SYMBOL_DIR": "${workspaceFolder}",
