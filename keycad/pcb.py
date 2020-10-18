@@ -32,11 +32,11 @@ class Pcb:
     def _reset_key_attributes(self):
         self.__logical_key_width = 1
 
-    def get_part_position(self):
-        x = int((self.__key_cursor_x +
-                 ((self.__logical_key_width - 1) * self.__mx_key_width / 2)))
-        y = int(self.__key_cursor_y)
-        return (x, y)
+    def get_part_position(self, part_ref):
+        m = self.__kinjector_json['board']['modules']
+        if part_ref in m and 'position' in m[part_ref]:
+            return m[part_ref]['position']
+        return None
 
     def maybe_override_position(self, part, x, y, angle, side):
         m = self.__kinjector_json['board']['modules']

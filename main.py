@@ -145,9 +145,13 @@ def main():
     kbd_dict["pcb_height_mm"] = pcb_height_mm
 
     if args.add_blue_pill:
-        # TODO(miket): this is a horrible hack.
-        usb_cutout_position = 14.375 * key_width
-        usb_cutout_width = 4.7 * 2
+        KC_TO_MM = 1000000
+        # J1 is a magic ref that means the USB-C connector
+        position = pcb.get_part_position("J1")
+        if position:
+            usb_cutout_position = position["x"] / KC_TO_MM
+            # Korean Hroparts TYPE-C-31-M-14
+            usb_cutout_width = 4.7 * 2
     else:
         usb_cutout_position = -1
         usb_cutout_width = -1
