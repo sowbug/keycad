@@ -38,6 +38,12 @@ the keycad.pretty/ directory as a global footprint library.
    use the code snippets in `my-keyboard-user-guide.md` to customize
    [QMK](https://github.com/qmk/qmk_firmware/) for your keyboard.
 
+## Notes for those of us familiar with QMK
+
+* `qmk compile -kb keycad/ansi_tkl -km default`
+* `sudo dfu-util -d 1eaf:0003 -a 2 -D keycad_ansi_tkl_default.bin`
+* Don't use hyphens in board names. Only letters/numbers/underscores.
+
 ## Useful Tools, Prior Art, and Guides
 
 * http://builder.swillkb.com/
