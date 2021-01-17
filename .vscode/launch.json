@@ -111,7 +111,7 @@
                 "--output_prefix",
                 "ansi_tkl",
                 "--out_dir",
-                "output/ansi-tkl/blue-pill",
+                "output/ansi_tkl/blue-pill",
                 "${workspaceFolder}/kle_layouts/ansi_tkl.json"
             ],
             "env": {
