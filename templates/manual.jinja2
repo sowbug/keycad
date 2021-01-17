@@ -69,7 +69,7 @@ Because of https://github.com/qmk/qmk_firmware/issues/8809: `make keycad/68keys:
 ```
 // {{ descriptors.identifier }}.c
 
-#include QMK_KEYBOARD_H
+#include "{{ descriptors.identifier }}.h"
 {% if has_per_key_led %}#include "quantum/rgb_matrix.h"{% endif %}
 
 {% if has_per_key_led %}led_config_t g_led_config = { {
