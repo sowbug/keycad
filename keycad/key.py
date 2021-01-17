@@ -46,6 +46,9 @@ SYMBOL_TO_ALNUM = {
     "→": 'RGHT',
     "↓": 'DOWN',
     "⌘": "LGUI",
+    "PrtSc": 'PSCREEN',
+    "Scroll Lock": 'SCROLL',
+    "Pause": 'BREAK',
 }
 
 
@@ -126,11 +129,11 @@ class Key:
     @property
     def matrix_col(self):
         return self.__matrix_col
-    
+
     @property
     def rowcol_label(self):
         return "R%dC%d" % (self.matrix_row, self.matrix_col)
-    
+
     def get_rowcol_label_dict(self, width_mm, height_mm):
         x, y = self.position
         x += 0.1
