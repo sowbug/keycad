@@ -1,6 +1,6 @@
 {
     "family_id": "keycad",
-    "identifier": "ansi-tkl",
+    "identifier": "ansi_tkl",
     "usb_vid": "0xFEED",
     "usb_pid": "0x8889",
     "usb_manufacturer": "Generic",

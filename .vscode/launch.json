@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "name": "Process current KLE file with Pro Micro",
             "type": "python",
@@ -15,7 +14,8 @@
             "args": [
                 "--add_pro_micro",
                 "--add_per_key_rgb",
-                "--output_prefix", "${fileBasenameNoExtension}",
+                "--output_prefix",
+                "${fileBasenameNoExtension}",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.positions.json",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.json"
@@ -35,7 +35,8 @@
             "args": [
                 "--add_blue_pill",
                 "--add_per_key_rgb",
-                "--output_prefix", "${fileBasenameNoExtension}",
+                "--output_prefix",
+                "${fileBasenameNoExtension}",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.positions.json",
                 "${workspaceFolder}/kle_layouts/${fileBasenameNoExtension}.json"
@@ -57,8 +58,10 @@
                 "--add_per_key_rgb",
                 "--position_json_filename",
                 "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
-                "--output_prefix", "68-keys",
-                "--out_dir", "output/68/pro-micro",
+                "--output_prefix",
+                "68-keys",
+                "--out_dir",
+                "output/68/pro-micro",
                 "${workspaceFolder}/kle_layouts/68keys-io.json"
             ],
             "env": {
@@ -80,8 +83,10 @@
                 "${workspaceFolder}/kle_layouts/68keys-io.positions.json",
                 "--descriptors_filename",
                 "${workspaceFolder}/kle_layouts/68keys-io.descriptors.json",
-                "--output_prefix", "68-keys",
-                "--out_dir", "output/68/blue-pill",
+                "--output_prefix",
+                "68-keys",
+                "--out_dir",
+                "output/68/blue-pill",
                 "${workspaceFolder}/kle_layouts/68keys-io.json"
             ],
             "env": {
@@ -100,12 +105,14 @@
                 "--add_blue_pill",
                 "--add_per_key_rgb",
                 "--position_json_filename",
-                "${workspaceFolder}/kle_layouts/ansi-tkl.positions.json",
+                "${workspaceFolder}/kle_layouts/ansi_tkl.positions.json",
                 "--descriptors_filename",
-                "${workspaceFolder}/kle_layouts/ansi-tkl.descriptors.json",
-                "--output_prefix", "ansi-tkl",
-                "--out_dir", "output/ansi-tkl/blue-pill",
-                "${workspaceFolder}/kle_layouts/ansi-tkl.json"
+                "${workspaceFolder}/kle_layouts/ansi_tkl.descriptors.json",
+                "--output_prefix",
+                "ansi_tkl",
+                "--out_dir",
+                "output/ansi-tkl/blue-pill",
+                "${workspaceFolder}/kle_layouts/ansi_tkl.json"
             ],
             "env": {
                 "KICAD_SYMBOL_DIR": "${workspaceFolder}",
